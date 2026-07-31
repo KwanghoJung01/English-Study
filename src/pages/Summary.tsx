@@ -9,13 +9,15 @@ import { todayKey } from '../lib/streak'
 
 export default function Summary() {
   const navigate = useNavigate()
-  const { passage, isReview, comprehensionAnswers, sentenceAttempts, wordsLearned, reset } = useLessonFlow()
+  const { passage, isReview, comprehensionAnswers, sentenceAttempts, wholePassageReading, wordsLearned, reset } =
+    useLessonFlow()
   const { addSession, addVocabEntries, activeProfileState } = useAppStore()
   const streakCurrent = activeProfileState?.streak.current ?? 0
   const savedRef = useRef(false)
 
   const reading = passage ? scoreComprehension(passage.questions, comprehensionAnswers) : null
   const speakingAvg = averageSpeakingAccuracy(sentenceAttempts)
+  const singleAttempts = sentenceAttempts.filter((a) => a.stage !== 'whole')
 
   useEffect(() => {
     if (!passage || savedRef.current) return
@@ -34,6 +36,7 @@ export default function Summary() {
       readingCorrect: r.correct,
       speakingAccuracyAvg: speakingAvg,
       sentenceAttempts,
+      wholePassageReading,
       wordsLearned,
       isReview,
     })
@@ -81,18 +84,43 @@ export default function Summary() {
           </div>
         </Card>
 
-        {sentenceAttempts.length > 0 && (
-        <Card>
-          <p className="mb-2 text-sm font-semibold">문장별 발화 정확도</p>
-          <ul className="flex flex-col gap-1.5">
-            {sentenceAttempts.map((a, i) => (
-              <li key={i} className="flex items-center justify-between text-sm">
-                <span className="truncate pr-2 text-slate-600 dark:text-slate-300">{a.sentence}</span>
-                <span className="shrink-0 font-medium text-indigo-600 dark:text-indigo-400">{a.accuracy}%</span>
-              </li>
-            ))}
-          </ul>
-        </Card>
+        {singleAttempts.length > 0 && (
+          <Card>
+            <p className="mb-2 text-sm font-semibold">문장별 발화 정확도</p>
+            <ul className="flex flex-col gap-1.5">
+              {singleAttempts.map((a, i) => (
+                <li key={i} className="flex items-center justify-between text-sm">
+                  <span className="truncate pr-2 text-slate-600 dark:text-slate-300">{a.sentence}</span>
+                  <span className="shrink-0 font-medium text-indigo-600 dark:text-indigo-400">{a.accuracy}%</span>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        )}
+
+        {wholePassageReading && (
+          <Card>
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-sm font-semibold">전체 지문 한번에 읽기</p>
+              <Badge tone={wholePassageReading.accuracy >= 80 ? 'emerald' : wholePassageReading.accuracy >= 50 ? 'amber' : 'slate'}>
+                {wholePassageReading.accuracy}%
+              </Badge>
+            </div>
+            <p className="mb-2 text-xs text-slate-400">
+              읽은 시간 {wholePassageReading.durationSec.toFixed(1)}초
+              {wholePassageReading.wpm !== null && ` · ${wholePassageReading.wpm} WPM`}
+            </p>
+            <ul className="flex flex-col gap-1.5">
+              {passage.sentences.map((s, i) => (
+                <li key={i} className="flex items-center justify-between text-sm">
+                  <span className="truncate pr-2 text-slate-600 dark:text-slate-300">{s}</span>
+                  <span className="shrink-0 font-medium text-indigo-600 dark:text-indigo-400">
+                    {wholePassageReading.sentenceAccuracies[i] ?? 0}%
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </Card>
         )}
 
         {wordsLearned.length > 0 && (

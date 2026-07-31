@@ -59,6 +59,16 @@ export interface SentenceAttempt {
   accuracy: number
   wpm: number | null
   diff: WordDiffToken[]
+  /** 문장 하나씩 연습한 결과인지, 전체 지문을 한 번에 읽은 결과에서 분리해낸 것인지 */
+  stage?: 'single' | 'whole'
+}
+
+export interface WholePassageReading {
+  transcript: string
+  durationSec: number
+  wpm: number | null
+  accuracy: number // 지문 전체 기준 정확도
+  sentenceAccuracies: number[] // passage.sentences와 같은 순서의 문장별 정확도
 }
 
 export interface LessonSession {
@@ -76,6 +86,7 @@ export interface LessonSession {
   readingCorrect: number
   speakingAccuracyAvg: number // 0~100
   sentenceAttempts: SentenceAttempt[]
+  wholePassageReading: WholePassageReading | null
   wordsLearned: string[]
   isReview: boolean
 }

@@ -62,8 +62,12 @@ interface SpeechRecognitionResultLike {
   transcript: string
 }
 
+interface SpeechRecognitionResultGroupLike extends ArrayLike<SpeechRecognitionResultLike> {
+  isFinal: boolean
+}
+
 interface SpeechRecognitionEventLike {
-  results: ArrayLike<ArrayLike<SpeechRecognitionResultLike>>
+  results: ArrayLike<SpeechRecognitionResultGroupLike>
 }
 
 interface SpeechRecognitionLike extends EventTarget {
@@ -78,7 +82,7 @@ interface SpeechRecognitionLike extends EventTarget {
   onend: (() => void) | null
 }
 
-function createRecognition(): SpeechRecognitionLike | null {
+function createRecognition(continuous = false): SpeechRecognitionLike | null {
   const w = window as unknown as {
     SpeechRecognition?: new () => SpeechRecognitionLike
     webkitSpeechRecognition?: new () => SpeechRecognitionLike
@@ -87,8 +91,8 @@ function createRecognition(): SpeechRecognitionLike | null {
   if (!Ctor) return null
   const recognition = new Ctor()
   recognition.lang = 'en-US'
-  recognition.interimResults = false
-  recognition.continuous = false
+  recognition.interimResults = continuous
+  recognition.continuous = continuous
   recognition.maxAlternatives = 1
   return recognition
 }
@@ -160,4 +164,96 @@ export async function recordAndRecognize(maxDurationSec = 15): Promise<Recording
 
   const durationSec = (performance.now() - startedAt) / 1000
   return { transcript, durationSec }
+}
+
+export interface ContinuousRecording {
+  /** 사용자가 다 읽었을 때 수동으로 인식을 종료한다. */
+  stop: () => void
+  result: Promise<RecordingResult>
+}
+
+/**
+ * 지문 전체를 한 번에 읽을 때 쓰는 연속 음성 인식. continuous=true로 문장 사이의
+ * 짧은 침묵에는 멈추지 않고 계속 듣다가, stop() 호출 또는 maxDurationSec 경과 시
+ * 지금까지 인식된 전체 텍스트를 반환한다. 'no-speech'/'network' 같은 일시적 오류는
+ * 즉시 실패시키지 않고 그때까지의 결과로 마무리한다.
+ */
+export function startContinuousRecognition(maxDurationSec: number): ContinuousRecording {
+  const startedAt = performance.now()
+  const recognition = createRecognition(true)
+
+  if (!recognition) {
+    return {
+      stop: () => {},
+      result: Promise.reject(
+        new Error('이 브라우저는 음성 인식을 지원하지 않습니다. 최신 Android Chrome을 사용해주세요.'),
+      ),
+    }
+  }
+
+  let finalText = ''
+  let settled = false // 프로미스가 이미 resolve/reject 됐는지
+  let stopRequested = false // stop() 중복 호출 방지
+  let timer: ReturnType<typeof setTimeout>
+  let finish: () => void = () => {}
+
+  const result = new Promise<RecordingResult>((resolve, reject) => {
+    finish = () => {
+      if (stopRequested) return
+      stopRequested = true
+      clearTimeout(timer)
+      try {
+        // 성공적으로 stop()이 호출되면 브라우저가 비동기로 onend를 발생시켜 거기서 resolve된다.
+        recognition.stop()
+      } catch {
+        if (!settled) {
+          settled = true
+          resolve({ transcript: finalText, durationSec: (performance.now() - startedAt) / 1000 })
+        }
+      }
+    }
+
+    timer = setTimeout(finish, maxDurationSec * 1000)
+
+    recognition.onresult = (event) => {
+      let combinedFinal = ''
+      for (let i = 0; i < event.results.length; i++) {
+        const group = event.results[i]
+        const text = group[0]?.transcript ?? ''
+        if (group.isFinal) combinedFinal += (combinedFinal ? ' ' : '') + text.trim()
+      }
+      if (combinedFinal) finalText = combinedFinal
+    }
+
+    recognition.onerror = (event) => {
+      const code = (event as { error?: string })?.error
+      if (code === 'not-allowed' || code === 'audio-capture') {
+        if (!settled) {
+          settled = true
+          clearTimeout(timer)
+          reject(new Error(RECOGNITION_ERROR_MESSAGES[code] ?? '마이크 오류가 발생했습니다.'))
+        }
+        return
+      }
+      // no-speech, network 등은 지금까지 인식된 내용으로 마무리한다.
+      finish()
+    }
+
+    recognition.onend = () => {
+      clearTimeout(timer)
+      if (settled) return
+      settled = true
+      resolve({ transcript: finalText, durationSec: (performance.now() - startedAt) / 1000 })
+    }
+
+    try {
+      recognition.start()
+    } catch {
+      clearTimeout(timer)
+      settled = true
+      reject(new Error('음성 인식을 시작할 수 없습니다.'))
+    }
+  })
+
+  return { stop: () => finish(), result }
 }

@@ -9,6 +9,11 @@ function normalize(text: string): string[] {
     .filter(Boolean)
 }
 
+/** 문장의 단어 개수를 alignWords와 동일한 기준(구두점 제거 후 공백 분리)으로 센다. */
+export function countWords(sentence: string): number {
+  return normalize(sentence).length
+}
+
 /**
  * 목표 문장(target)과 인식된 발화(spoken)를 단어 단위로 정렬해
  * correct / wrong(치환) / missing(누락) / extra(추가) 태그를 매긴다.
@@ -67,6 +72,34 @@ export function computeAccuracy(tokens: WordDiffToken[]): number {
 export function computeWpm(wordCount: number, durationSec: number): number | null {
   if (durationSec <= 0) return null
   return Math.round((wordCount / durationSec) * 60)
+}
+
+/**
+ * 지문 전체 문장을 이어 붙인 목표 문장에 대한 alignWords 결과(tokens)를,
+ * 원래 문장 경계(sentenceWordCounts)에 따라 문장별로 다시 나눈다.
+ * 'extra'(추가로 말한 단어) 토큰은 현재 진행 중인 문장 쪽에 포함시킨다.
+ */
+export function splitTokensBySentence(
+  tokens: WordDiffToken[],
+  sentenceWordCounts: number[],
+): WordDiffToken[][] {
+  const buckets: WordDiffToken[][] = sentenceWordCounts.map(() => [])
+  let sentenceIndex = 0
+  let consumed = 0
+
+  for (const token of tokens) {
+    const bucket = buckets[Math.min(sentenceIndex, buckets.length - 1)]
+    bucket.push(token)
+    if (token.status !== 'extra') {
+      consumed++
+      if (sentenceIndex < buckets.length && consumed >= sentenceWordCounts[sentenceIndex]) {
+        sentenceIndex++
+        consumed = 0
+      }
+    }
+  }
+
+  return buckets
 }
 
 export function paceFeedback(wpm: number | null): string {
