@@ -41,7 +41,7 @@ export default function Reading() {
 
   if (!passage) {
     return (
-      <FocusLayout title="독해">
+      <FocusLayout title="독해" step={1}>
         <div className="flex flex-col items-center gap-3 p-8 text-center text-sm text-slate-400">
           <p>진행 중인 학습이 없어요.</p>
           <Button onClick={() => navigate('/lesson/setup')}>학습 설정으로 이동</Button>
@@ -61,7 +61,7 @@ export default function Reading() {
   }
 
   return (
-    <FocusLayout title="독해">
+    <FocusLayout title="독해" step={1}>
       <div className="flex flex-col gap-4 p-4">
         <div className="flex items-center gap-2">
           <Badge tone={passage.source === 'gemini' ? 'indigo' : 'slate'}>

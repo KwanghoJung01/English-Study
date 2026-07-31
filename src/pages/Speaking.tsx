@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import FocusLayout from '../components/FocusLayout'
 import { Badge, Button, Card } from '../components/ui'
+import { RecordingIndicator, useElapsedSeconds } from '../components/RecordingIndicator'
 import { useLessonFlow } from '../lib/lessonFlow'
 import { useAppStore } from '../lib/store'
 import {
@@ -27,7 +28,7 @@ const TOKEN_COLOR: Record<WordDiffToken['status'], string> = {
 
 function TokenText({ tokens }: { tokens: WordDiffToken[] }) {
   return (
-    <p className="flex flex-wrap gap-1 text-base leading-relaxed">
+    <p className="flex flex-wrap gap-1.5 text-lg leading-relaxed">
       {tokens.map((t, i) => (
         <span key={i} className={TOKEN_COLOR[t.status]}>
           {t.word}
@@ -57,6 +58,7 @@ export default function Speaking() {
   // 전체 지문 한번에 읽기 상태
   const [wholePhase, setWholePhase] = useState<Phase>('idle')
   const [wholeError, setWholeError] = useState<string | null>(null)
+  const [wholeLiveTranscript, setWholeLiveTranscript] = useState('')
   const [wholeTranscript, setWholeTranscript] = useState('')
   const [wholeDuration, setWholeDuration] = useState(0)
   const [wholeWpm, setWholeWpm] = useState<number | null>(null)
@@ -64,12 +66,15 @@ export default function Speaking() {
   const [wholeSentenceTokens, setWholeSentenceTokens] = useState<WordDiffToken[][]>([])
   const wholeRecordingRef = useRef<ContinuousRecording | null>(null)
 
+  const sentenceElapsed = useElapsedSeconds(phase === 'recording')
+  const wholeElapsed = useElapsedSeconds(wholePhase === 'recording')
+
   const ttsOk = useMemo(() => isTtsSupported(), [])
   const sttOk = useMemo(() => isSttSupported(), [])
 
   if (!passage) {
     return (
-      <FocusLayout title="스피킹 연습">
+      <FocusLayout title="스피킹 연습" step={3}>
         <div className="flex flex-col items-center gap-3 p-8 text-center text-sm text-slate-400">
           <p>진행 중인 학습이 없어요.</p>
           <Button onClick={() => navigate('/lesson/setup')}>학습 설정으로 이동</Button>
@@ -157,8 +162,9 @@ export default function Speaking() {
     if (!passage) return
     setWholePhase('recording')
     setWholeError(null)
-    const maxDurationSec = Math.max(25, passage.sentences.length * 8)
-    const handle = startContinuousRecognition(maxDurationSec)
+    setWholeLiveTranscript('')
+    const maxDurationSec = Math.max(40, passage.sentences.length * 10)
+    const handle = startContinuousRecognition(maxDurationSec, (soFar) => setWholeLiveTranscript(soFar))
     wholeRecordingRef.current = handle
 
     handle.result
@@ -215,9 +221,9 @@ export default function Speaking() {
 
   if (stage === 'whole') {
     return (
-      <FocusLayout title="스피킹 연습">
+      <FocusLayout title="스피킹 연습" step={3}>
         <div className="flex flex-col gap-4 p-4">
-          <Badge tone="indigo">전체 지문 한번에 읽기</Badge>
+          <Badge tone="indigo">마지막 단계 · 전체 지문 한번에 읽기</Badge>
 
           {(!ttsOk || !sttOk) && (
             <p className="rounded-xl bg-amber-50 p-3 text-xs text-amber-700 dark:bg-amber-950 dark:text-amber-300">
@@ -226,7 +232,7 @@ export default function Speaking() {
           )}
 
           <Card>
-            <p className="text-[15px] leading-relaxed text-slate-700 dark:text-slate-200">{fullText}</p>
+            <p className="text-lg leading-loose text-slate-700 dark:text-slate-200">{fullText}</p>
           </Card>
 
           <div className="grid grid-cols-2 gap-3">
@@ -245,7 +251,18 @@ export default function Speaking() {
           </div>
 
           {wholePhase === 'recording' && (
-            <p className="text-center text-xs text-slate-400">듣고 있어요. 다 읽으면 "다 읽었어요"를 눌러주세요.</p>
+            <div className="flex flex-col gap-2">
+              <RecordingIndicator seconds={wholeElapsed} label="듣고 있어요" />
+              <p className="text-center text-xs text-slate-400">
+                다 읽으면 위의 "🛑 다 읽었어요"를 눌러서 끝내주세요. 문장 사이에 잠깐 멈춰도 계속 들어요.
+              </p>
+              {wholeLiveTranscript && (
+                <Card className="bg-slate-50 dark:bg-slate-800">
+                  <p className="mb-1 text-[11px] font-semibold text-slate-400">지금까지 인식된 내용</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-300">{wholeLiveTranscript}</p>
+                </Card>
+              )}
+            </div>
           )}
 
           {wholeError && (
@@ -298,11 +315,21 @@ export default function Speaking() {
   }
 
   return (
-    <FocusLayout title="스피킹 연습">
+    <FocusLayout title="스피킹 연습" step={3}>
       <div className="flex flex-col gap-4 p-4">
-        <p className="text-center text-xs text-slate-400">
-          문장 {index + 1} / {passage.sentences.length}
-        </p>
+        <div className="flex flex-col items-center gap-1.5">
+          <p className="text-xs text-slate-400">
+            문장 {index + 1} / {passage.sentences.length}
+          </p>
+          <div className="flex w-full gap-1">
+            {passage.sentences.map((_, i) => (
+              <div
+                key={i}
+                className={`h-1 flex-1 rounded-full ${i <= index ? 'bg-indigo-500' : 'bg-slate-200 dark:bg-slate-700'}`}
+              />
+            ))}
+          </div>
+        </div>
 
         {(!ttsOk || !sttOk) && (
           <p className="rounded-xl bg-amber-50 p-3 text-xs text-amber-700 dark:bg-amber-950 dark:text-amber-300">
@@ -312,7 +339,7 @@ export default function Speaking() {
         )}
 
         <Card>
-          <p className="text-lg font-semibold leading-relaxed">{sentence}</p>
+          <p className="text-xl font-semibold leading-relaxed">{sentence}</p>
         </Card>
 
         <div className="grid grid-cols-2 gap-3">
@@ -320,9 +347,11 @@ export default function Speaking() {
             🔊 원어민 듣기
           </Button>
           <Button onClick={handleRecord} disabled={phase === 'recording' || !sttOk}>
-            {phase === 'recording' ? '🎙 녹음 중…' : '🎙 내 리딩 녹음'}
+            🎙 내 리딩 녹음
           </Button>
         </div>
+
+        {phase === 'recording' && <RecordingIndicator seconds={sentenceElapsed} label="녹음 중" />}
 
         {error && (
           <p className="rounded-xl bg-rose-50 p-3 text-sm text-rose-600 dark:bg-rose-950 dark:text-rose-300">

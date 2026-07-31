@@ -173,16 +173,26 @@ export interface ContinuousRecording {
 }
 
 /**
- * 지문 전체를 한 번에 읽을 때 쓰는 연속 음성 인식. continuous=true로 문장 사이의
- * 짧은 침묵에는 멈추지 않고 계속 듣다가, stop() 호출 또는 maxDurationSec 경과 시
- * 지금까지 인식된 전체 텍스트를 반환한다. 'no-speech'/'network' 같은 일시적 오류는
- * 즉시 실패시키지 않고 그때까지의 결과로 마무리한다.
+ * 지문 전체를 한 번에 읽을 때 쓰는 연속 음성 인식.
+ *
+ * 처음에는 SpeechRecognition의 continuous=true 모드를 시도했지만, Android Chrome에서는
+ * 매 onresult마다 "지금까지 들은 전체 발화"를 다시 통째로 재전사해서 보내는 경우가 있어
+ * (데스크톱 Chrome과 다르게 동작), 그대로 이어붙이면 "i i wake i wake up i wake up at..."
+ * 처럼 단어가 눈덩이처럼 중복되고, 인식 세션 자체도 문장 사이 침묵에서 예고 없이 끊기는
+ * 문제가 있었다.
+ *
+ * 대신 문장별 연습에서 이미 안정적으로 동작하는 단발성 인식(continuous=false)을 짧은
+ * 침묵마다 자동으로 재시작해서 이어붙이는 "체이닝" 방식을 쓴다. 각 조각은 그 구간에서
+ * 새로 들은 오디오만 전사하므로 중복이 생기지 않고, onend마다 즉시 다음 조각을 시작하므로
+ * 사용자가 stop()을 부르기 전까지는 문장 사이 침묵에도 멈추지 않는다.
  */
-export function startContinuousRecognition(maxDurationSec: number): ContinuousRecording {
+export function startContinuousRecognition(
+  maxDurationSec: number,
+  onChunk?: (transcriptSoFar: string) => void,
+): ContinuousRecording {
   const startedAt = performance.now()
-  const recognition = createRecognition(true)
 
-  if (!recognition) {
+  if (!isSttSupported()) {
     return {
       stop: () => {},
       result: Promise.reject(
@@ -191,68 +201,83 @@ export function startContinuousRecognition(maxDurationSec: number): ContinuousRe
     }
   }
 
-  let finalText = ''
-  let settled = false // 프로미스가 이미 resolve/reject 됐는지
-  let stopRequested = false // stop() 중복 호출 방지
+  const chunks: string[] = []
+  let settled = false
+  let stopRequested = false
+  let currentRecognition: SpeechRecognitionLike | null = null
   let timer: ReturnType<typeof setTimeout>
   let finish: () => void = () => {}
 
   const result = new Promise<RecordingResult>((resolve, reject) => {
+    const settleResolve = () => {
+      if (settled) return
+      settled = true
+      clearTimeout(timer)
+      resolve({ transcript: chunks.join(' ').trim(), durationSec: (performance.now() - startedAt) / 1000 })
+    }
+
     finish = () => {
       if (stopRequested) return
       stopRequested = true
       clearTimeout(timer)
-      try {
-        // 성공적으로 stop()이 호출되면 브라우저가 비동기로 onend를 발생시켜 거기서 resolve된다.
-        recognition.stop()
-      } catch {
-        if (!settled) {
-          settled = true
-          resolve({ transcript: finalText, durationSec: (performance.now() - startedAt) / 1000 })
+      if (currentRecognition) {
+        try {
+          // stop()이 성공하면 onend가 비동기로 발생해 거기서 최종 resolve된다.
+          currentRecognition.stop()
+        } catch {
+          settleResolve()
         }
+      } else {
+        settleResolve()
       }
     }
 
     timer = setTimeout(finish, maxDurationSec * 1000)
 
-    recognition.onresult = (event) => {
-      let combinedFinal = ''
-      for (let i = 0; i < event.results.length; i++) {
-        const group = event.results[i]
-        const text = group[0]?.transcript ?? ''
-        if (group.isFinal) combinedFinal += (combinedFinal ? ' ' : '') + text.trim()
-      }
-      if (combinedFinal) finalText = combinedFinal
-    }
-
-    recognition.onerror = (event) => {
-      const code = (event as { error?: string })?.error
-      if (code === 'not-allowed' || code === 'audio-capture') {
-        if (!settled) {
-          settled = true
-          clearTimeout(timer)
-          reject(new Error(RECOGNITION_ERROR_MESSAGES[code] ?? '마이크 오류가 발생했습니다.'))
-        }
+    function startChunk() {
+      const recognition = createRecognition(false)
+      if (!recognition) {
+        settleResolve()
         return
       }
-      // no-speech, network 등은 지금까지 인식된 내용으로 마무리한다.
-      finish()
+      currentRecognition = recognition
+
+      recognition.onresult = (event) => {
+        const text = event.results[0]?.[0]?.transcript?.trim()
+        if (text) {
+          chunks.push(text)
+          onChunk?.(chunks.join(' ').trim())
+        }
+      }
+      recognition.onerror = (event) => {
+        const code = (event as { error?: string })?.error
+        if (!stopRequested && (code === 'not-allowed' || code === 'audio-capture')) {
+          if (!settled) {
+            settled = true
+            clearTimeout(timer)
+            reject(new Error(RECOGNITION_ERROR_MESSAGES[code] ?? '마이크 오류가 발생했습니다.'))
+          }
+          return
+        }
+        // no-speech/aborted 등은 onend에서 이어서 처리(재시작 또는 종료)한다.
+      }
+      recognition.onend = () => {
+        if (stopRequested) {
+          settleResolve()
+          return
+        }
+        // 사용자가 아직 멈추지 않았다면 짧은 침묵 뒤에도 바로 다음 조각을 이어서 듣는다.
+        startChunk()
+      }
+
+      try {
+        recognition.start()
+      } catch {
+        settleResolve()
+      }
     }
 
-    recognition.onend = () => {
-      clearTimeout(timer)
-      if (settled) return
-      settled = true
-      resolve({ transcript: finalText, durationSec: (performance.now() - startedAt) / 1000 })
-    }
-
-    try {
-      recognition.start()
-    } catch {
-      clearTimeout(timer)
-      settled = true
-      reject(new Error('음성 인식을 시작할 수 없습니다.'))
-    }
+    startChunk()
   })
 
   return { stop: () => finish(), result }

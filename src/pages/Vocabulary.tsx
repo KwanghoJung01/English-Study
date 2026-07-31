@@ -16,7 +16,7 @@ export default function Vocabulary() {
 
   if (!passage) {
     return (
-      <FocusLayout title="단어 학습">
+      <FocusLayout title="단어 학습" step={2}>
         <div className="flex flex-col items-center gap-3 p-8 text-center text-sm text-slate-400">
           <p>진행 중인 학습이 없어요.</p>
           <Button onClick={() => navigate('/lesson/setup')}>학습 설정으로 이동</Button>
@@ -28,7 +28,7 @@ export default function Vocabulary() {
   const vocab = passage.vocabulary
   if (vocab.length === 0) {
     return (
-      <FocusLayout title="단어 학습">
+      <FocusLayout title="단어 학습" step={2}>
         <div className="flex flex-col gap-4 p-4">
           <p className="text-sm text-slate-400">이 지문에는 등록된 핵심 단어가 없어요.</p>
           <Button onClick={() => navigate('/lesson/speaking')}>다음: 스피킹 연습</Button>
@@ -51,7 +51,7 @@ export default function Vocabulary() {
   }
 
   return (
-    <FocusLayout title="단어 학습">
+    <FocusLayout title="단어 학습" step={2}>
       <div className="flex flex-col gap-4 p-4">
         <p className="text-center text-xs text-slate-400">
           {index + 1} / {vocab.length}
