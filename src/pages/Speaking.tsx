@@ -57,6 +57,11 @@ export default function Speaking() {
     setError(null)
     try {
       const result = await recordAndRecognize(12)
+      if (!result.transcript.trim()) {
+        setError('말이 인식되지 않았어요. 버튼을 누른 직후 바로, 조금 더 또렷하게 말해보세요.')
+        setPhase('idle')
+        return
+      }
       const diffTokens = alignWords(sentence, result.transcript)
       const acc = computeAccuracy(diffTokens)
       const wordCount = sentence.trim().split(/\s+/).length

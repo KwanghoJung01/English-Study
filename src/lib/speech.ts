@@ -95,36 +95,27 @@ function createRecognition(): SpeechRecognitionLike | null {
 
 export interface RecordingResult {
   transcript: string
-  audioBlob: Blob | null
   durationSec: number
 }
 
+const RECOGNITION_ERROR_MESSAGES: Record<string, string> = {
+  'no-speech': '말이 인식되지 않았어요. 버튼을 누른 직후 바로 말해보세요.',
+  'audio-capture': '마이크에 접근할 수 없습니다. 브라우저의 마이크 권한을 확인해주세요.',
+  'not-allowed': '마이크 권한이 거부되었습니다. 브라우저 설정에서 마이크 권한을 허용해주세요.',
+  network: '네트워크 오류로 음성 인식에 실패했습니다. 연결 상태를 확인하고 다시 시도해주세요.',
+}
+
 /**
- * 마이크 녹음(MediaRecorder)과 음성 인식(SpeechRecognition)을 동시에 시작하고,
- * 인식이 끝나면(또는 timeout) 오디오 blob과 전사 텍스트를 함께 반환한다.
+ * SpeechRecognition만으로 음성을 인식한다. 과거에는 MediaRecorder로 오디오도 함께
+ * 녹음했지만, Android Chrome에서 getUserMedia와 SpeechRecognition이 마이크를 동시에
+ * 점유하면 인식률이 급격히 떨어지는(전사가 항상 빈 문자열로 반환되는) 문제가 있어
+ * SpeechRecognition 단독 사용으로 단순화했다.
  */
 export async function recordAndRecognize(maxDurationSec = 15): Promise<RecordingResult> {
   const startedAt = performance.now()
   const recognition = createRecognition()
   if (!recognition) {
     throw new Error('이 브라우저는 음성 인식을 지원하지 않습니다. 최신 Android Chrome을 사용해주세요.')
-  }
-
-  let stream: MediaStream | null = null
-  let recorder: MediaRecorder | null = null
-  const chunks: BlobPart[] = []
-
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-    recorder = new MediaRecorder(stream)
-    recorder.ondataavailable = (e) => {
-      if (e.data.size > 0) chunks.push(e.data)
-    }
-    recorder.start()
-  } catch {
-    // 마이크 녹음이 불가해도 음성 인식만으로 진행
-    stream = null
-    recorder = null
   }
 
   const transcript = await new Promise<string>((resolve, reject) => {
@@ -144,11 +135,12 @@ export async function recordAndRecognize(maxDurationSec = 15): Promise<Recording
         resolve(result?.transcript ?? '')
       }
     }
-    recognition.onerror = () => {
+    recognition.onerror = (event) => {
       if (!finished) {
         finished = true
         clearTimeout(timer)
-        reject(new Error('음성 인식 중 오류가 발생했습니다. 다시 시도해주세요.'))
+        const code = (event as { error?: string })?.error
+        reject(new Error((code && RECOGNITION_ERROR_MESSAGES[code]) || '음성 인식 중 오류가 발생했습니다. 다시 시도해주세요.'))
       }
     }
     recognition.onend = () => {
@@ -167,20 +159,5 @@ export async function recordAndRecognize(maxDurationSec = 15): Promise<Recording
   })
 
   const durationSec = (performance.now() - startedAt) / 1000
-
-  let audioBlob: Blob | null = null
-  if (recorder) {
-    audioBlob = await new Promise<Blob | null>((resolve) => {
-      if (!recorder) {
-        resolve(null)
-        return
-      }
-      recorder.onstop = () => resolve(chunks.length ? new Blob(chunks, { type: 'audio/webm' }) : null)
-      if (recorder.state !== 'inactive') recorder.stop()
-      else resolve(null)
-    })
-    stream?.getTracks().forEach((t) => t.stop())
-  }
-
-  return { transcript, audioBlob, durationSec }
+  return { transcript, durationSec }
 }
