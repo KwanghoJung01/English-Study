@@ -110,22 +110,53 @@ export interface Settings {
   defaultLevel: Level
   ttsRate: number
   syncEnabled: boolean
+  /** 이 기기에서 마지막으로 선택된 프로필. 기기별 UI 상태라 동기화 대상 AppState가 아닌 로컬 설정에 둔다. */
+  activeProfileId: string | null
 }
 
-export interface AppState {
-  version: number
+export const PROFILE_EMOJIS = ['🙂', '👦', '👧', '🧑', '👩', '👨', '🐻', '🐰', '🦊', '🐱', '🐶', '⭐'] as const
+export const PROFILE_COLORS = ['#4f46e5', '#0ea5e9', '#16a34a', '#d97706', '#db2777', '#7c3aed'] as const
+
+export interface Profile {
+  id: string
+  name: string
+  emoji: string
+  color: string
+  level: Level
+  ttsRate: number
+  createdAt: string
+}
+
+export interface ProfileState {
+  profileId: string
   updatedAt: string
   streak: StreakInfo
   sessions: LessonSession[]
   vocabulary: VocabEntry[]
 }
 
+export function createEmptyProfileState(profileId: string): ProfileState {
+  return {
+    profileId,
+    updatedAt: new Date(0).toISOString(),
+    streak: { current: 0, longest: 0, lastCompletedDate: null },
+    sessions: [],
+    vocabulary: [],
+  }
+}
+
+export interface AppState {
+  version: number
+  updatedAt: string
+  profiles: Profile[]
+  profileStates: Record<string, ProfileState>
+}
+
 export const EMPTY_APP_STATE: AppState = {
-  version: 1,
+  version: 2,
   updatedAt: new Date(0).toISOString(),
-  streak: { current: 0, longest: 0, lastCompletedDate: null },
-  sessions: [],
-  vocabulary: [],
+  profiles: [],
+  profileStates: {},
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -138,4 +169,5 @@ export const DEFAULT_SETTINGS: Settings = {
   defaultLevel: 'beginner',
   ttsRate: 0.9,
   syncEnabled: false,
+  activeProfileId: null,
 }

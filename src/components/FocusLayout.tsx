@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAppStore } from '../lib/store'
 
 export default function FocusLayout({
   title,
@@ -11,6 +12,7 @@ export default function FocusLayout({
   children: ReactNode
 }) {
   const navigate = useNavigate()
+  const { activeProfile } = useAppStore()
 
   return (
     <div className="flex flex-1 flex-col">
@@ -23,7 +25,15 @@ export default function FocusLayout({
         >
           ←
         </button>
-        <h1 className="text-base font-bold">{title}</h1>
+        <h1 className="flex-1 text-base font-bold">{title}</h1>
+        {activeProfile && (
+          <span
+            className="flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold text-white"
+            style={{ background: activeProfile.color }}
+          >
+            {activeProfile.emoji} {activeProfile.name}
+          </span>
+        )}
       </header>
       <main className="flex-1 overflow-y-auto pb-8">{children}</main>
     </div>

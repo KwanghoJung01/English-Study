@@ -1,6 +1,7 @@
 import { openDB, type IDBPDatabase } from 'idb'
 import type { AppState } from '../types'
 import { EMPTY_APP_STATE } from '../types'
+import { migrateAppState } from './migrate'
 
 const DB_NAME = 'english-study-db'
 const DB_VERSION = 1
@@ -26,7 +27,7 @@ export async function loadLocalState(): Promise<AppState> {
   try {
     const db = await getDb()
     const state = await db.get(STORE, STATE_KEY)
-    return state ?? EMPTY_APP_STATE
+    return state ? migrateAppState(state) : EMPTY_APP_STATE
   } catch {
     return EMPTY_APP_STATE
   }

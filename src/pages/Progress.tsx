@@ -6,17 +6,24 @@ import { Badge, Button, Card, ProgressBar } from '../components/ui'
 import type { VocabEntry } from '../types'
 
 export default function Progress() {
-  const { state, reviewVocab } = useAppStore()
+  const { activeProfile, activeProfileState, reviewVocab } = useAppStore()
   const today = todayKey()
-  const due = useMemo(() => dueVocab(state.vocabulary, today), [state.vocabulary, today])
-  const recentSessions = state.sessions.slice(0, 20)
+  const sessions = useMemo(() => activeProfileState?.sessions ?? [], [activeProfileState])
+  const vocabulary = useMemo(() => activeProfileState?.vocabulary ?? [], [activeProfileState])
+  const streak = activeProfileState?.streak ?? { current: 0, longest: 0, lastCompletedDate: null }
+  const due = useMemo(() => dueVocab(vocabulary, today), [vocabulary, today])
+  const recentSessions = sessions.slice(0, 20)
+
+  if (!activeProfile) {
+    return <div className="p-6 text-center text-sm text-slate-400">위에서 학습할 사람을 먼저 선택해주세요.</div>
+  }
 
   return (
     <div className="flex flex-col gap-4 p-4">
       <Card className="grid grid-cols-3 gap-2 text-center">
-        <Stat label="현재 스트릭" value={`${state.streak.current}일`} />
-        <Stat label="최고 스트릭" value={`${state.streak.longest}일`} />
-        <Stat label="총 학습 횟수" value={`${state.sessions.filter((s) => !s.isReview).length}회`} />
+        <Stat label="현재 스트릭" value={`${streak.current}일`} />
+        <Stat label="최고 스트릭" value={`${streak.longest}일`} />
+        <Stat label="총 학습 횟수" value={`${sessions.filter((s) => !s.isReview).length}회`} />
       </Card>
 
       {recentSessions.length > 0 && (
@@ -41,7 +48,7 @@ export default function Progress() {
         </Card>
       )}
 
-      <VocabSection due={due} totalCount={state.vocabulary.length} onReview={reviewVocab} />
+      <VocabSection due={due} totalCount={vocabulary.length} onReview={reviewVocab} />
 
       <Card>
         <p className="mb-2 text-sm font-semibold">학습 기록 전체</p>

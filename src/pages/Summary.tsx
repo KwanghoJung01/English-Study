@@ -10,7 +10,8 @@ import { todayKey } from '../lib/streak'
 export default function Summary() {
   const navigate = useNavigate()
   const { passage, isReview, comprehensionAnswers, sentenceAttempts, wordsLearned, reset } = useLessonFlow()
-  const { addSession, addVocabEntries, state } = useAppStore()
+  const { addSession, addVocabEntries, activeProfileState } = useAppStore()
+  const streakCurrent = activeProfileState?.streak.current ?? 0
   const savedRef = useRef(false)
 
   const reading = passage ? scoreComprehension(passage.questions, comprehensionAnswers) : null
@@ -63,7 +64,7 @@ export default function Summary() {
       <div className="flex flex-col gap-4 p-4">
         <Card className="flex flex-col items-center gap-2 bg-gradient-to-br from-indigo-600 to-indigo-500 text-center text-white">
           <p className="text-sm opacity-90">오늘도 수고했어요!</p>
-          <p className="text-2xl font-extrabold">🔥 연속 {state.streak.current}일째</p>
+          <p className="text-2xl font-extrabold">🔥 연속 {streakCurrent}일째</p>
           {isReview && <Badge tone="amber">복습 세션 (스트릭에는 영향 없음)</Badge>}
         </Card>
 

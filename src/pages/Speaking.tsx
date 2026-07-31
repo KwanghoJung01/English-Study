@@ -13,7 +13,8 @@ type Phase = 'idle' | 'listening-tts' | 'recording' | 'result'
 export default function Speaking() {
   const navigate = useNavigate()
   const { passage, sentenceAttempts, addSentenceAttempt } = useLessonFlow()
-  const { settings } = useAppStore()
+  const { settings, activeProfile } = useAppStore()
+  const ttsRate = activeProfile?.ttsRate ?? settings.ttsRate
 
   const [index, setIndex] = useState(0)
   const [phase, setPhase] = useState<Phase>('idle')
@@ -44,7 +45,7 @@ export default function Speaking() {
     setPhase('listening-tts')
     setError(null)
     try {
-      await speak(sentence, settings.ttsRate)
+      await speak(sentence, ttsRate)
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     } finally {

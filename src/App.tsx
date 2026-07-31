@@ -6,6 +6,7 @@ import { primeVoices } from './lib/speech'
 import MainLayout from './components/MainLayout'
 import Dashboard from './pages/Dashboard'
 import Progress from './pages/Progress'
+import Family from './pages/Family'
 import Settings from './pages/Settings'
 import LessonSetup from './pages/LessonSetup'
 import Reading from './pages/Reading'
@@ -26,6 +27,7 @@ export default function App() {
             <Route element={<MainLayout />}>
               <Route path="/" element={<Dashboard />} />
               <Route path="/progress" element={<Progress />} />
+              <Route path="/family" element={<Family />} />
               <Route path="/settings" element={<Settings />} />
             </Route>
             <Route path="/lesson/setup" element={<LessonSetup />} />

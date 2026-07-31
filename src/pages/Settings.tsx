@@ -1,7 +1,14 @@
 import { useState, type ReactNode } from 'react'
-import { useAppStore } from '../lib/store'
+import { useAppStore, type NewProfileInput } from '../lib/store'
 import { Button, Card } from '../components/ui'
-import { LEVELS, type GenerationMode, type Level } from '../types'
+import {
+  LEVELS,
+  PROFILE_COLORS,
+  PROFILE_EMOJIS,
+  type GenerationMode,
+  type Level,
+  type Profile,
+} from '../types'
 
 const MODE_LABEL: Record<GenerationMode, string> = {
   auto: '자동 (Gemini 우선, 실패 시 콘텐츠 뱅크)',
@@ -16,6 +23,8 @@ export default function Settings() {
 
   return (
     <div className="flex flex-col gap-4 p-4">
+      <ProfileManager />
+
       <Section title="지문 생성 방식">
         <div className="flex flex-col gap-1.5">
           {(Object.keys(MODE_LABEL) as GenerationMode[]).map((mode) => (
@@ -157,6 +166,168 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
     <div>
       <label className="mb-1 block text-xs text-slate-400">{label}</label>
       {children}
+    </div>
+  )
+}
+
+function ProfileManager() {
+  const { profiles, activeProfile, createProfile, updateProfile, deleteProfile, setActiveProfile } = useAppStore()
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [showAddForm, setShowAddForm] = useState(false)
+
+  return (
+    <Section title="가족 프로필">
+      <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">
+        가족 구성원마다 프로필을 만들면 각자의 수준·주제로 따로 학습하고, "가족 비교" 탭에서 기록을 비교할 수 있어요.
+      </p>
+
+      {profiles.length === 0 && (
+        <p className="mb-3 text-sm text-slate-400">아직 프로필이 없어요. 아래에서 첫 프로필을 만들어주세요.</p>
+      )}
+
+      <div className="flex flex-col gap-2">
+        {profiles.map((p) =>
+          editingId === p.id ? (
+            <Card key={p.id} className="bg-slate-50 dark:bg-slate-800">
+              <ProfileForm
+                initial={p}
+                submitLabel="저장"
+                onCancel={() => setEditingId(null)}
+                onSubmit={(input) => {
+                  updateProfile(p.id, input)
+                  setEditingId(null)
+                }}
+              />
+            </Card>
+          ) : (
+            <div
+              key={p.id}
+              className="flex items-center justify-between rounded-xl border border-slate-200 p-3 dark:border-slate-800"
+            >
+              <button type="button" onClick={() => setActiveProfile(p.id)} className="flex items-center gap-2 text-left">
+                <span
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-lg"
+                  style={{ background: `${p.color}22` }}
+                >
+                  {p.emoji}
+                </span>
+                <span>
+                  <span className="block text-sm font-semibold">{p.name}</span>
+                  <span className="block text-[11px] text-slate-400">
+                    {LEVELS.find((l) => l.id === p.level)?.label}
+                    {activeProfile?.id === p.id && ' · 선택됨'}
+                  </span>
+                </span>
+              </button>
+              <div className="flex gap-1">
+                <Button variant="ghost" onClick={() => setEditingId(p.id)}>
+                  수정
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="text-rose-500"
+                  onClick={() => {
+                    if (window.confirm(`"${p.name}" 프로필과 학습 기록을 삭제할까요? 되돌릴 수 없어요.`)) {
+                      deleteProfile(p.id)
+                    }
+                  }}
+                >
+                  삭제
+                </Button>
+              </div>
+            </div>
+          ),
+        )}
+      </div>
+
+      {showAddForm ? (
+        <Card className="mt-3 bg-slate-50 dark:bg-slate-800">
+          <ProfileForm
+            submitLabel="추가"
+            onCancel={() => setShowAddForm(false)}
+            onSubmit={(input) => {
+              createProfile(input)
+              setShowAddForm(false)
+            }}
+          />
+        </Card>
+      ) : (
+        <Button variant="secondary" className="mt-3 w-full" onClick={() => setShowAddForm(true)}>
+          + 새 프로필 추가
+        </Button>
+      )}
+    </Section>
+  )
+}
+
+function ProfileForm({
+  initial,
+  submitLabel,
+  onSubmit,
+  onCancel,
+}: {
+  initial?: Profile
+  submitLabel: string
+  onSubmit: (input: NewProfileInput) => void
+  onCancel: () => void
+}) {
+  const [name, setName] = useState(initial?.name ?? '')
+  const [emoji, setEmoji] = useState(initial?.emoji ?? PROFILE_EMOJIS[0])
+  const [color, setColor] = useState(initial?.color ?? PROFILE_COLORS[0])
+  const [level, setLevel] = useState<Level>(initial?.level ?? 'beginner')
+
+  return (
+    <div className="flex flex-col gap-3">
+      <input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="이름 / 별명 (예: 민준이)"
+        className="w-full rounded-xl border border-slate-200 bg-transparent p-2.5 text-sm dark:border-slate-800"
+      />
+      <div className="flex flex-wrap gap-2">
+        {PROFILE_EMOJIS.map((e) => (
+          <button
+            key={e}
+            type="button"
+            onClick={() => setEmoji(e)}
+            className={`flex h-9 w-9 items-center justify-center rounded-full border-2 text-base ${
+              emoji === e ? 'border-indigo-500' : 'border-transparent bg-slate-100 dark:bg-slate-700'
+            }`}
+          >
+            {e}
+          </button>
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {PROFILE_COLORS.map((c) => (
+          <button
+            key={c}
+            type="button"
+            onClick={() => setColor(c)}
+            className={`h-7 w-7 rounded-full border-2 ${color === c ? 'border-slate-900 dark:border-white' : 'border-transparent'}`}
+            style={{ background: c }}
+          />
+        ))}
+      </div>
+      <select
+        value={level}
+        onChange={(e) => setLevel(e.target.value as Level)}
+        className="w-full rounded-xl border border-slate-200 bg-transparent p-2.5 text-sm dark:border-slate-800"
+      >
+        {LEVELS.map((l) => (
+          <option key={l.id} value={l.id}>
+            {l.label} — {l.hint}
+          </option>
+        ))}
+      </select>
+      <div className="flex gap-2">
+        <Button variant="secondary" className="flex-1" onClick={onCancel}>
+          취소
+        </Button>
+        <Button className="flex-1" disabled={!name.trim()} onClick={() => onSubmit({ name, emoji, color, level })}>
+          {submitLabel}
+        </Button>
+      </div>
     </div>
   )
 }

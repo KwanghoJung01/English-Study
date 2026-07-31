@@ -1,9 +1,11 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAppStore } from '../lib/store'
+import ProfileSwitcher from './ProfileSwitcher'
 
 const TABS = [
   { to: '/', label: '홈', icon: '🏠', end: true },
   { to: '/progress', label: '진행 기록', icon: '📊', end: false },
+  { to: '/family', label: '가족 비교', icon: '👨‍👩‍👧', end: false },
   { to: '/settings', label: '설정', icon: '⚙️', end: false },
 ]
 
@@ -12,9 +14,12 @@ export default function MainLayout() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur dark:border-slate-800 dark:bg-slate-900/90">
-        <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400">매일 영어 스피킹</h1>
-        <SyncBadge status={syncStatus} />
+      <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-900/90">
+        <div className="flex items-center justify-between px-4 py-3">
+          <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400">매일 영어 스피킹</h1>
+          <SyncBadge status={syncStatus} />
+        </div>
+        <ProfileSwitcher />
       </header>
 
       <main className="flex-1 overflow-y-auto pb-20">

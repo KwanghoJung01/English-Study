@@ -11,10 +11,10 @@ export default function LessonSetup() {
   const navigate = useNavigate()
   const location = useLocation()
   const isReview = Boolean((location.state as { isReview?: boolean } | null)?.isReview)
-  const { settings, state } = useAppStore()
+  const { settings, activeProfile, activeProfileState } = useAppStore()
   const { startLesson } = useLessonFlow()
 
-  const [level, setLevel] = useState<Level>(settings.defaultLevel)
+  const [level, setLevel] = useState<Level>(activeProfile?.level ?? settings.defaultLevel)
   const [topic, setTopic] = useState<TopicId>('daily-life')
   const [customTopic, setCustomTopic] = useState('')
   const [loading, setLoading] = useState(false)
@@ -25,12 +25,23 @@ export default function LessonSetup() {
 
   const recentBankKeys = useMemo(
     () =>
-      state.sessions
+      (activeProfileState?.sessions ?? [])
         .filter((s) => s.source === 'bank')
         .slice(0, 10)
         .map((s) => s.passageId),
-    [state.sessions],
+    [activeProfileState],
   )
+
+  if (!activeProfile) {
+    return (
+      <FocusLayout title="학습 설정">
+        <div className="flex flex-col items-center gap-3 p-8 text-center text-sm text-slate-400">
+          <p>먼저 학습할 사람의 프로필을 선택해주세요.</p>
+          <Button onClick={() => navigate('/')}>홈으로</Button>
+        </div>
+      </FocusLayout>
+    )
+  }
 
   async function handleGenerate() {
     setLoading(true)

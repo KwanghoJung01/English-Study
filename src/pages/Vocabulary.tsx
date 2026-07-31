@@ -9,7 +9,8 @@ import { useAppStore } from '../lib/store'
 export default function Vocabulary() {
   const navigate = useNavigate()
   const { passage, setWordsLearned } = useLessonFlow()
-  const { settings } = useAppStore()
+  const { settings, activeProfile } = useAppStore()
+  const ttsRate = activeProfile?.ttsRate ?? settings.ttsRate
   const [index, setIndex] = useState(0)
   const [revealed, setRevealed] = useState(false)
 
@@ -58,7 +59,7 @@ export default function Vocabulary() {
         <Card className="flex min-h-[220px] flex-col items-center justify-center gap-4 text-center">
           <button
             type="button"
-            onClick={() => speak(current.term, settings.ttsRate)}
+            onClick={() => speak(current.term, ttsRate)}
             className="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400"
           >
             {current.term} 🔊
