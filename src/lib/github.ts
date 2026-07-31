@@ -19,6 +19,15 @@ function base64ToUtf8(b64: string): string {
   return new TextDecoder().decode(bytes)
 }
 
+export class GithubApiError extends Error {
+  status: number
+  constructor(message: string, status: number) {
+    super(message)
+    this.name = 'GithubApiError'
+    this.status = status
+  }
+}
+
 function apiBase(settings: Settings): string {
   return `https://api.github.com/repos/${settings.githubOwner}/${settings.githubRepo}/contents/${PROGRESS_PATH}`
 }
@@ -49,7 +58,7 @@ export async function fetchRemoteState(settings: Settings): Promise<RemoteStateR
   }
   if (!res.ok) {
     const text = await res.text().catch(() => '')
-    throw new Error(`GitHub에서 진행 기록을 불러오지 못했습니다 (${res.status}): ${text.slice(0, 200)}`)
+    throw new GithubApiError(`GitHub에서 진행 기록을 불러오지 못했습니다 (${res.status}): ${text.slice(0, 200)}`, res.status)
   }
   const json = await res.json()
   const content = base64ToUtf8(json.content as string)
@@ -74,7 +83,7 @@ export async function pushRemoteState(
   })
   if (!res.ok) {
     const text = await res.text().catch(() => '')
-    throw new Error(`GitHub에 진행 기록을 저장하지 못했습니다 (${res.status}): ${text.slice(0, 200)}`)
+    throw new GithubApiError(`GitHub에 진행 기록을 저장하지 못했습니다 (${res.status}): ${text.slice(0, 200)}`, res.status)
   }
   const json = await res.json()
   return json.content?.sha as string

@@ -21,7 +21,7 @@ import type {
 import { EMPTY_APP_STATE, createEmptyProfileState } from '../types'
 import { loadLocalState, saveLocalState } from './db'
 import { loadSettings, saveSettings } from './settings'
-import { fetchRemoteState, isGithubConfigured, mergeStates, pushRemoteState } from './github'
+import { fetchRemoteState, GithubApiError, isGithubConfigured, mergeStates, pushRemoteState } from './github'
 import { applyCompletion, todayKey } from './streak'
 import { reviewVocab as reviewVocabEntry } from './srs'
 import { generateId } from './id'
@@ -82,6 +82,24 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       shaRef.current = sha
       setSyncStatus('synced')
     } catch (err) {
+      // sha를 아직 모르거나(422, 예: 설정을 방금 입력하고 바로 동기화한 경우) 그 사이 원격이
+      // 바뀌어 sha가 낡았으면(409) 최신 원격 상태를 다시 받아 병합한 뒤 한 번 더 시도한다.
+      if (err instanceof GithubApiError && (err.status === 422 || err.status === 409)) {
+        try {
+          const remote = await fetchRemoteState(settingsRef.current)
+          const merged = remote.state ? mergeStates(nextState, remote.state) : nextState
+          const sha = await pushRemoteState(settingsRef.current, merged, remote.sha)
+          shaRef.current = sha
+          setState(merged)
+          void saveLocalState(merged)
+          setSyncStatus('synced')
+          return
+        } catch (retryErr) {
+          setSyncStatus('error')
+          setSyncError(retryErr instanceof Error ? retryErr.message : String(retryErr))
+          return
+        }
+      }
       setSyncStatus('error')
       setSyncError(err instanceof Error ? err.message : String(err))
     }
