@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { useAppStore, type NewProfileInput } from '../lib/store'
 import { Button, Card } from '../components/ui'
+import SpeedControl from '../components/SpeedControl'
 import {
   LEVELS,
   PROFILE_COLORS,
@@ -17,7 +18,8 @@ const MODE_LABEL: Record<GenerationMode, string> = {
 }
 
 export default function Settings() {
-  const { settings, updateSettings, syncNow, syncStatus, syncError } = useAppStore()
+  const { settings, updateSettings, activeProfile, setTtsRate, syncNow, syncStatus, syncError } = useAppStore()
+  const ttsRate = activeProfile?.ttsRate ?? settings.ttsRate
   const [showToken, setShowToken] = useState(false)
   const [showKey, setShowKey] = useState(false)
 
@@ -72,17 +74,9 @@ export default function Settings() {
         </select>
 
         <label className="mb-1 mt-3 block text-xs font-semibold text-slate-500 dark:text-slate-400">
-          원어민 듣기 속도: {settings.ttsRate.toFixed(1)}x
+          원어민 듣기 속도 ({ttsRate.toFixed(1)}x) — 독해·단어학습·스피킹 탭에서도 바로 바꿀 수 있어요
         </label>
-        <input
-          type="range"
-          min={0.5}
-          max={1.3}
-          step={0.1}
-          value={settings.ttsRate}
-          onChange={(e) => updateSettings({ ttsRate: Number(e.target.value) })}
-          className="w-full"
-        />
+        <SpeedControl rate={ttsRate} onChange={setTtsRate} />
       </Section>
 
       <Section title="GitHub 진행 기록 동기화">

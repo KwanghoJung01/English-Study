@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import FocusLayout from '../components/FocusLayout'
 import { Button, Card } from '../components/ui'
+import SpeedControl from '../components/SpeedControl'
 import { useLessonFlow } from '../lib/lessonFlow'
 import { speak } from '../lib/speech'
 import { useAppStore } from '../lib/store'
@@ -9,7 +10,7 @@ import { useAppStore } from '../lib/store'
 export default function Vocabulary() {
   const navigate = useNavigate()
   const { passage, setWordsLearned } = useLessonFlow()
-  const { settings, activeProfile } = useAppStore()
+  const { settings, activeProfile, setTtsRate } = useAppStore()
   const ttsRate = activeProfile?.ttsRate ?? settings.ttsRate
   const [index, setIndex] = useState(0)
   const [revealed, setRevealed] = useState(false)
@@ -75,6 +76,7 @@ export default function Vocabulary() {
             </Button>
           )}
         </Card>
+        <SpeedControl rate={ttsRate} onChange={setTtsRate} />
         <Button onClick={handleNext} disabled={!revealed}>
           {isLast ? '다음: 스피킹 연습' : '다음 단어'}
         </Button>

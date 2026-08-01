@@ -1,9 +1,12 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import FocusLayout from '../components/FocusLayout'
 import { Badge, Button, Card } from '../components/ui'
+import SpeedControl from '../components/SpeedControl'
 import { useLessonFlow } from '../lib/lessonFlow'
+import { useAppStore } from '../lib/store'
 import { scoreComprehension } from '../lib/scoring'
+import { isTtsSupported, speak, stopSpeaking } from '../lib/speech'
 
 function escapeHtml(text: string): string {
   return text
@@ -31,13 +34,30 @@ function highlightVocab(text: string, terms: string[]): string {
 export default function Reading() {
   const navigate = useNavigate()
   const { passage, isReview, generationNote, comprehensionAnswers, setComprehensionAnswers } = useLessonFlow()
+  const { settings, activeProfile, setTtsRate } = useAppStore()
+  const ttsRate = activeProfile?.ttsRate ?? settings.ttsRate
   const [submitted, setSubmitted] = useState(false)
+  const [listening, setListening] = useState(false)
 
   const terms = useMemo(() => passage?.vocabulary.map((v) => v.term) ?? [], [passage])
   const paragraphHtml = useMemo(
     () => (passage ? highlightVocab(passage.sentences.join(' '), terms) : ''),
     [passage, terms],
   )
+
+  useEffect(() => {
+    return () => stopSpeaking()
+  }, [])
+
+  async function handleListenPassage() {
+    if (!passage) return
+    setListening(true)
+    try {
+      await speak(passage.sentences.join(' '), ttsRate)
+    } finally {
+      setListening(false)
+    }
+  }
 
   if (!passage) {
     return (
@@ -76,12 +96,16 @@ export default function Reading() {
           </p>
         )}
 
-        <Card>
-          <h2 className="mb-2 text-lg font-bold">{passage.title}</h2>
+        <Card className="flex flex-col gap-3">
+          <h2 className="text-lg font-bold">{passage.title}</h2>
           <p
-            className="text-[15px] leading-relaxed text-slate-700 dark:text-slate-200"
+            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
             dangerouslySetInnerHTML={{ __html: paragraphHtml }}
           />
+          <Button variant="secondary" onClick={handleListenPassage} disabled={listening || !isTtsSupported()}>
+            {listening ? '🔊 읽어주는 중…' : '🔊 원어민이 전체 읽어주기'}
+          </Button>
+          <SpeedControl rate={ttsRate} onChange={setTtsRate} />
         </Card>
 
         <section className="flex flex-col gap-3">

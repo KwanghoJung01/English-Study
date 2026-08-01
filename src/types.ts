@@ -1,6 +1,7 @@
-export type Level = 'beginner' | 'intermediate' | 'advanced'
+export type Level = 'intro' | 'beginner' | 'intermediate' | 'advanced'
 
 export const LEVELS: { id: Level; label: string; hint: string }[] = [
+  { id: 'intro', label: '입문', hint: '초등 1~3학년 눈높이의 아주 짧고 쉬운 문장 (그림책 수준)' },
   { id: 'beginner', label: '초급', hint: '짧고 쉬운 문장, 기본 어휘 (CEFR A1~A2)' },
   { id: 'intermediate', label: '중급', hint: '일상 대화 수준의 문장과 어휘 (CEFR B1~B2)' },
   { id: 'advanced', label: '고급', hint: '풍부한 어휘와 복문 구조 (CEFR C1)' },
@@ -13,6 +14,8 @@ export type TopicId =
   | 'current-events'
   | 'hobbies'
   | 'food'
+  | 'animals'
+  | 'school'
   | 'custom'
 
 export const BANK_TOPICS: { id: TopicId; label: string }[] = [
@@ -22,7 +25,12 @@ export const BANK_TOPICS: { id: TopicId; label: string }[] = [
   { id: 'current-events', label: '시사/뉴스' },
   { id: 'hobbies', label: '취미/관심사' },
   { id: 'food', label: '음식/요리' },
+  { id: 'animals', label: '동물' },
+  { id: 'school', label: '학교생활' },
 ]
+
+/** '입문' 레벨(초1~3학년)에서 보여줄 눈높이 주제만 추린 목록 */
+export const INTRO_TOPIC_IDS: TopicId[] = ['daily-life', 'animals', 'school', 'hobbies', 'food', 'travel']
 
 export interface VocabItem {
   term: string
@@ -170,6 +178,12 @@ export const EMPTY_APP_STATE: AppState = {
   profileStates: {},
 }
 
+export const TTS_SPEED_PRESETS: { rate: number; label: string; emoji: string }[] = [
+  { rate: 0.6, label: '느리게', emoji: '🐢' },
+  { rate: 0.8, label: '보통', emoji: '🚶' },
+  { rate: 1.0, label: '빠르게', emoji: '🐇' },
+]
+
 export const DEFAULT_SETTINGS: Settings = {
   geminiApiKey: '',
   githubToken: '',
@@ -178,7 +192,7 @@ export const DEFAULT_SETTINGS: Settings = {
   githubBranch: 'main',
   generationMode: 'auto',
   defaultLevel: 'beginner',
-  ttsRate: 0.9,
+  ttsRate: 0.8,
   syncEnabled: false,
   activeProfileId: null,
 }

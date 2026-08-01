@@ -5,7 +5,7 @@ import { Button, Card } from '../components/ui'
 import { useAppStore } from '../lib/store'
 import { useLessonFlow } from '../lib/lessonFlow'
 import { generatePassage } from '../lib/generation'
-import { BANK_TOPICS, LEVELS, type Level, type TopicId } from '../types'
+import { BANK_TOPICS, INTRO_TOPIC_IDS, LEVELS, type Level, type TopicId } from '../types'
 
 export default function LessonSetup() {
   const navigate = useNavigate()
@@ -22,6 +22,14 @@ export default function LessonSetup() {
 
   const bankOnly = settings.generationMode === 'bank' || !settings.geminiApiKey.trim()
   const useCustom = topic === 'custom' && !bankOnly
+  const availableTopics = level === 'intro' ? BANK_TOPICS.filter((t) => INTRO_TOPIC_IDS.includes(t.id)) : BANK_TOPICS
+
+  function handleSelectLevel(next: Level) {
+    setLevel(next)
+    if (next === 'intro' && !INTRO_TOPIC_IDS.includes(topic)) {
+      setTopic('daily-life')
+    }
+  }
 
   const recentBankKeys = useMemo(
     () =>
@@ -68,7 +76,7 @@ export default function LessonSetup() {
               <button
                 key={l.id}
                 type="button"
-                onClick={() => setLevel(l.id)}
+                onClick={() => handleSelectLevel(l.id)}
                 className={`rounded-xl border p-3 text-left transition ${
                   level === l.id
                     ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950'
@@ -84,8 +92,11 @@ export default function LessonSetup() {
 
         <section>
           <h2 className="mb-2 text-sm font-semibold text-slate-500 dark:text-slate-400">주제 선택</h2>
+          {level === 'intro' && (
+            <p className="mb-2 text-xs text-slate-400">입문 단계는 아이 눈높이에 맞는 주제만 보여드려요.</p>
+          )}
           <div className="grid grid-cols-2 gap-2">
-            {BANK_TOPICS.map((t) => (
+            {availableTopics.map((t) => (
               <button
                 key={t.id}
                 type="button"
@@ -99,18 +110,20 @@ export default function LessonSetup() {
                 {t.label}
               </button>
             ))}
-            <button
-              type="button"
-              disabled={bankOnly}
-              onClick={() => setTopic('custom')}
-              className={`rounded-xl border p-3 text-sm font-medium transition disabled:opacity-40 ${
-                topic === 'custom'
-                  ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950'
-                  : 'border-slate-200 dark:border-slate-800'
-              }`}
-            >
-              직접 입력 {bankOnly && '(Gemini 키 필요)'}
-            </button>
+            {level !== 'intro' && (
+              <button
+                type="button"
+                disabled={bankOnly}
+                onClick={() => setTopic('custom')}
+                className={`rounded-xl border p-3 text-sm font-medium transition disabled:opacity-40 ${
+                  topic === 'custom'
+                    ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950'
+                    : 'border-slate-200 dark:border-slate-800'
+                }`}
+              >
+                직접 입력 {bankOnly && '(Gemini 키 필요)'}
+              </button>
+            )}
           </div>
           {useCustom && (
             <input

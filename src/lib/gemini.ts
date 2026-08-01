@@ -11,13 +11,23 @@ interface GeminiPassagePayload {
   questions: { question: string; choices: string[]; answerIndex: number }[]
 }
 
+const INTRO_LEVEL_GUIDANCE = `
+This is for a 7-9 year old Korean child (elementary school grade 1-3) who is just starting to learn English.
+Extra rules for this level:
+- Each sentence must be VERY short and simple: 3 to 6 words only.
+- Use only the most basic, concrete, high-frequency vocabulary (family, animals, colors, numbers, food, school, everyday actions).
+- Use only simple present tense. Avoid conjunctions like "because", "although", "while". No idioms, no phrasal complexity.
+- Sentences should read like a picture book, one simple idea per sentence.
+- Comprehension question choices must also be short and simple (1-3 words each).`
+
 function buildPrompt(level: Level, topicLabel: string): string {
   const levelInfo = LEVELS.find((l) => l.id === level)
   return `You are an English learning content generator for a Korean learner.
 Create ONE short English reading passage for topic "${topicLabel}" at level "${levelInfo?.label} (${levelInfo?.hint})".
+${level === 'intro' ? INTRO_LEVEL_GUIDANCE : ''}
 
 Requirements:
-- 6 to 9 natural, connected English sentences (as an array, one sentence per element, no numbering).
+- ${level === 'intro' ? '5 to 7' : '6 to 9'} natural, connected English sentences (as an array, one sentence per element, no numbering).
 - Vocabulary difficulty must match the level.
 - Provide 5 to 8 key vocabulary items from the passage: English term, Korean meaning, and one example English sentence (different from the passage sentences).
 - Provide 3 multiple-choice reading comprehension questions in English about the passage, each with exactly 4 choices and a zero-based answerIndex.

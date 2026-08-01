@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import FocusLayout from '../components/FocusLayout'
 import { Badge, Button, Card } from '../components/ui'
 import { RecordingIndicator, useElapsedSeconds } from '../components/RecordingIndicator'
+import SpeedControl from '../components/SpeedControl'
 import { useLessonFlow } from '../lib/lessonFlow'
 import { useAppStore } from '../lib/store'
 import {
@@ -41,7 +42,7 @@ function TokenText({ tokens }: { tokens: WordDiffToken[] }) {
 export default function Speaking() {
   const navigate = useNavigate()
   const { passage, sentenceAttempts, addSentenceAttempt, setWholePassageReading } = useLessonFlow()
-  const { settings, activeProfile } = useAppStore()
+  const { settings, activeProfile, setTtsRate } = useAppStore()
   const ttsRate = activeProfile?.ttsRate ?? settings.ttsRate
 
   const [stage, setStage] = useState<Stage>('sentences')
@@ -250,6 +251,8 @@ export default function Speaking() {
             )}
           </div>
 
+          <SpeedControl rate={ttsRate} onChange={setTtsRate} />
+
           {wholePhase === 'recording' && (
             <div className="flex flex-col gap-2">
               <RecordingIndicator seconds={wholeElapsed} label="듣고 있어요" />
@@ -350,6 +353,8 @@ export default function Speaking() {
             🎙 내 리딩 녹음
           </Button>
         </div>
+
+        <SpeedControl rate={ttsRate} onChange={setTtsRate} />
 
         {phase === 'recording' && <RecordingIndicator seconds={sentenceElapsed} label="녹음 중" />}
 

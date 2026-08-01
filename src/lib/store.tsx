@@ -49,6 +49,8 @@ interface AppStore {
   updateProfile: (id: string, patch: Partial<Omit<Profile, 'id' | 'createdAt'>>) => void
   deleteProfile: (id: string) => void
   setActiveProfile: (id: string) => void
+  /** 활성 프로필이 있으면 그 프로필의 듣기 속도를, 없으면 전역 기본 속도를 갱신한다. */
+  setTtsRate: (rate: number) => void
   addSession: (session: Omit<LessonSession, 'id' | 'completedAt'>) => void
   addVocabEntries: (items: VocabItem[], level: Level) => void
   reviewVocab: (id: string, correct: boolean) => void
@@ -199,7 +201,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
         emoji: input.emoji,
         color: input.color,
         level: input.level,
-        ttsRate: 0.9,
+        ttsRate: 0.8,
         createdAt: new Date().toISOString(),
       }
       commitState((prev) => ({
@@ -247,6 +249,18 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       updateSettings({ activeProfileId: id })
     },
     [updateSettings],
+  )
+
+  const setTtsRate = useCallback(
+    (rate: number) => {
+      const profileId = settingsRef.current.activeProfileId
+      if (profileId) {
+        updateProfile(profileId, { ttsRate: rate })
+      } else {
+        updateSettings({ ttsRate: rate })
+      }
+    },
+    [updateProfile, updateSettings],
   )
 
   const addSession = useCallback(
@@ -336,6 +350,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       updateProfile,
       deleteProfile,
       setActiveProfile,
+      setTtsRate,
       addSession,
       addVocabEntries,
       reviewVocab,
@@ -354,6 +369,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       updateProfile,
       deleteProfile,
       setActiveProfile,
+      setTtsRate,
       addSession,
       addVocabEntries,
       reviewVocab,

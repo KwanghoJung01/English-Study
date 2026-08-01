@@ -20,6 +20,182 @@ export function getTopicLabel(topic: TopicId): string {
 }
 
 const RAW_BANK: Omit<BankPassage, 'key'>[] = [
+  // ---------------- INTRO (초등 1~3학년) ----------------
+  {
+    level: 'intro',
+    topic: 'daily-life',
+    title: 'My Day',
+    sentences: [
+      'I get up at seven.',
+      'I eat breakfast.',
+      'I go to school.',
+      'I play with friends.',
+      'I do my homework.',
+      'I go to bed at nine.',
+    ],
+    vocabulary: [
+      { term: 'get up', meaning: '일어나다', example: 'I get up early every day.' },
+      { term: 'breakfast', meaning: '아침밥', example: 'I eat breakfast at home.' },
+      { term: 'school', meaning: '학교', example: 'I like my school.' },
+      { term: 'play', meaning: '놀다', example: 'I play with my friends.' },
+      { term: 'homework', meaning: '숙제', example: 'I do my homework after school.' },
+    ],
+    questions: [
+      { question: 'What time does the child get up?', choices: ['Six', 'Seven', 'Eight', 'Nine'], answerIndex: 1 },
+      {
+        question: 'What does the child do with friends?',
+        choices: ['Sleep', 'Play', 'Cook', 'Drive'],
+        answerIndex: 1,
+      },
+      { question: 'What time does the child go to bed?', choices: ['Seven', 'Eight', 'Nine', 'Ten'], answerIndex: 2 },
+    ],
+  },
+  {
+    level: 'intro',
+    topic: 'animals',
+    title: 'My Pet Dog',
+    sentences: [
+      'I have a dog.',
+      'My dog is brown.',
+      'My dog is big.',
+      'My dog can run fast.',
+      'My dog can jump high.',
+      'I love my dog very much.',
+    ],
+    vocabulary: [
+      { term: 'dog', meaning: '개', example: 'The dog is happy.' },
+      { term: 'brown', meaning: '갈색의', example: 'My bag is brown.' },
+      { term: 'big', meaning: '큰', example: 'That is a big house.' },
+      { term: 'run', meaning: '달리다', example: 'I can run fast.' },
+      { term: 'jump', meaning: '뛰다, 점프하다', example: 'The cat can jump high.' },
+    ],
+    questions: [
+      { question: 'What color is the dog?', choices: ['Black', 'Brown', 'White', 'Gray'], answerIndex: 1 },
+      { question: 'What can the dog do?', choices: ['Swim', 'Sing', 'Run fast', 'Fly'], answerIndex: 2 },
+      { question: 'Is the dog big or small?', choices: ['Big', 'Small', 'Old', 'New'], answerIndex: 0 },
+    ],
+  },
+  {
+    level: 'intro',
+    topic: 'school',
+    title: 'My School',
+    sentences: [
+      'I go to school every day.',
+      'My teacher is very kind.',
+      'I read books in class.',
+      'I write with a pencil.',
+      'I play at recess.',
+      'I like my school a lot.',
+    ],
+    vocabulary: [
+      { term: 'teacher', meaning: '선생님', example: 'My teacher is kind.' },
+      { term: 'kind', meaning: '친절한', example: 'She is a kind friend.' },
+      { term: 'read', meaning: '읽다', example: 'I read a book every night.' },
+      { term: 'write', meaning: '쓰다', example: 'I write my name.' },
+      { term: 'recess', meaning: '쉬는 시간', example: 'We play at recess.' },
+    ],
+    questions: [
+      { question: 'How is the teacher?', choices: ['Kind', 'Angry', 'Sad', 'Tired'], answerIndex: 0 },
+      {
+        question: 'What does the child write with?',
+        choices: ['A pen', 'A pencil', 'A crayon', 'A brush'],
+        answerIndex: 1,
+      },
+      { question: 'When does the child play?', choices: ['At lunch', 'At recess', 'At night', 'At home'], answerIndex: 1 },
+    ],
+  },
+  {
+    level: 'intro',
+    topic: 'hobbies',
+    title: 'I Like to Draw',
+    sentences: [
+      'I like to draw pictures.',
+      'I draw cats and dogs.',
+      'I use many colors.',
+      'My favorite color is blue.',
+      'I draw every weekend.',
+      'My mom likes my pictures.',
+    ],
+    vocabulary: [
+      { term: 'draw', meaning: '그리다', example: 'I like to draw.' },
+      { term: 'picture', meaning: '그림', example: 'This is my picture.' },
+      { term: 'color', meaning: '색깔', example: 'I like many colors.' },
+      { term: 'favorite', meaning: '가장 좋아하는', example: 'Blue is my favorite color.' },
+      { term: 'weekend', meaning: '주말', example: 'I play on the weekend.' },
+    ],
+    questions: [
+      {
+        question: 'What does the child like to draw?',
+        choices: ['Cars', 'Cats and dogs', 'Houses', 'Flowers'],
+        answerIndex: 1,
+      },
+      { question: 'What is the favorite color?', choices: ['Red', 'Green', 'Blue', 'Yellow'], answerIndex: 2 },
+      {
+        question: 'When does the child draw?',
+        choices: ['Every morning', 'Every weekend', 'Every night', 'At school'],
+        answerIndex: 1,
+      },
+    ],
+  },
+  {
+    level: 'intro',
+    topic: 'food',
+    title: 'My Favorite Food',
+    sentences: [
+      'I like pizza very much.',
+      'Pizza is round and warm.',
+      'I also like apples.',
+      'Apples are red and sweet.',
+      'I drink milk every day.',
+      'Milk makes me strong.',
+    ],
+    vocabulary: [
+      { term: 'pizza', meaning: '피자', example: 'I eat pizza on Friday.' },
+      { term: 'round', meaning: '둥근', example: 'The ball is round.' },
+      { term: 'apple', meaning: '사과', example: 'I eat an apple every day.' },
+      { term: 'sweet', meaning: '달콤한', example: 'This candy is sweet.' },
+      { term: 'milk', meaning: '우유', example: 'I drink milk in the morning.' },
+    ],
+    questions: [
+      { question: 'What shape is pizza?', choices: ['Square', 'Round', 'Long', 'Flat'], answerIndex: 1 },
+      { question: 'What color are the apples?', choices: ['Green', 'Yellow', 'Red', 'Purple'], answerIndex: 2 },
+      {
+        question: 'What does the child drink every day?',
+        choices: ['Juice', 'Water', 'Milk', 'Soda'],
+        answerIndex: 2,
+      },
+    ],
+  },
+  {
+    level: 'intro',
+    topic: 'travel',
+    title: 'Going to the Beach',
+    sentences: [
+      'My family went to the beach.',
+      'We drove in the car.',
+      'The sand was very hot.',
+      'I swam in the water.',
+      'I made a sandcastle.',
+      'It was a fun day.',
+    ],
+    vocabulary: [
+      { term: 'beach', meaning: '해변', example: 'We go to the beach in summer.' },
+      { term: 'drive', meaning: '운전하다', example: 'My dad can drive.' },
+      { term: 'sand', meaning: '모래', example: 'The sand is soft.' },
+      { term: 'swim', meaning: '수영하다', example: 'I like to swim.' },
+      { term: 'sandcastle', meaning: '모래성', example: 'We made a big sandcastle.' },
+    ],
+    questions: [
+      { question: 'How did the family travel?', choices: ['By car', 'By train', 'By plane', 'By boat'], answerIndex: 0 },
+      { question: 'What was the sand like?', choices: ['Cold', 'Wet', 'Hot', 'Icy'], answerIndex: 2 },
+      {
+        question: 'What did the child make?',
+        choices: ['A sandcastle', 'A snowman', 'A kite', 'A boat'],
+        answerIndex: 0,
+      },
+    ],
+  },
+
   // ---------------- BEGINNER ----------------
   {
     level: 'beginner',
