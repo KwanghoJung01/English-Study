@@ -7,6 +7,7 @@ export interface BankPassage {
   topic: TopicId
   title: string
   sentences: string[]
+  translations: string[] // sentences와 1:1로 대응하는 한국어 해석
   vocabulary: VocabItem[]
   questions: ComprehensionQuestion[]
 }
@@ -32,6 +33,14 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'I play with friends.',
       'I do my homework.',
       'I go to bed at nine.',
+    ],
+    translations: [
+      '나는 7시에 일어나요.',
+      '나는 아침을 먹어요.',
+      '나는 학교에 가요.',
+      '나는 친구들과 놀아요.',
+      '나는 숙제를 해요.',
+      '나는 9시에 자러 가요.',
     ],
     vocabulary: [
       { term: 'get up', meaning: '일어나다', example: 'I get up early every day.' },
@@ -62,6 +71,14 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'My dog can jump high.',
       'I love my dog very much.',
     ],
+    translations: [
+      '나는 개가 있어요.',
+      '내 개는 갈색이에요.',
+      '내 개는 커요.',
+      '내 개는 빨리 달릴 수 있어요.',
+      '내 개는 높이 뛸 수 있어요.',
+      '나는 내 개를 아주 많이 사랑해요.',
+    ],
     vocabulary: [
       { term: 'dog', meaning: '개', example: 'The dog is happy.' },
       { term: 'brown', meaning: '갈색의', example: 'My bag is brown.' },
@@ -86,6 +103,14 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'I write with a pencil.',
       'I play at recess.',
       'I like my school a lot.',
+    ],
+    translations: [
+      '나는 매일 학교에 가요.',
+      '우리 선생님은 아주 친절해요.',
+      '나는 수업 시간에 책을 읽어요.',
+      '나는 연필로 글씨를 써요.',
+      '나는 쉬는 시간에 놀아요.',
+      '나는 우리 학교를 아주 좋아해요.',
     ],
     vocabulary: [
       { term: 'teacher', meaning: '선생님', example: 'My teacher is kind.' },
@@ -115,6 +140,14 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'My favorite color is blue.',
       'I draw every weekend.',
       'My mom likes my pictures.',
+    ],
+    translations: [
+      '나는 그림 그리는 것을 좋아해요.',
+      '나는 고양이와 개를 그려요.',
+      '나는 많은 색깔을 사용해요.',
+      '내가 가장 좋아하는 색은 파란색이에요.',
+      '나는 주말마다 그림을 그려요.',
+      '엄마는 내 그림을 좋아해요.',
     ],
     vocabulary: [
       { term: 'draw', meaning: '그리다', example: 'I like to draw.' },
@@ -149,6 +182,14 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'I drink milk every day.',
       'Milk makes me strong.',
     ],
+    translations: [
+      '나는 피자를 아주 좋아해요.',
+      '피자는 둥글고 따뜻해요.',
+      '나는 사과도 좋아해요.',
+      '사과는 빨갛고 달콤해요.',
+      '나는 매일 우유를 마셔요.',
+      '우유는 나를 튼튼하게 해줘요.',
+    ],
     vocabulary: [
       { term: 'pizza', meaning: '피자', example: 'I eat pizza on Friday.' },
       { term: 'round', meaning: '둥근', example: 'The ball is round.' },
@@ -177,6 +218,14 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'I swam in the water.',
       'I made a sandcastle.',
       'It was a fun day.',
+    ],
+    translations: [
+      '우리 가족은 해변에 갔어요.',
+      '우리는 차를 타고 갔어요.',
+      '모래는 아주 뜨거웠어요.',
+      '나는 물에서 수영했어요.',
+      '나는 모래성을 만들었어요.',
+      '아주 즐거운 하루였어요.',
     ],
     vocabulary: [
       { term: 'beach', meaning: '해변', example: 'We go to the beach in summer.' },
@@ -209,6 +258,15 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'I take the bus to work at eight fifteen.',
       'The bus ride takes about twenty minutes.',
       'I always feel ready for the day after my morning routine.',
+    ],
+    translations: [
+      '나는 매일 아침 7시에 일어나요.',
+      '먼저, 나는 이를 닦고 세수를 해요.',
+      '그런 다음 토스트와 계란 같은 간단한 아침을 먹어요.',
+      '나는 집을 나서기 전에 보통 커피 한 잔을 마셔요.',
+      '나는 8시 15분에 버스를 타고 출근해요.',
+      '버스로 가는 데 약 20분이 걸려요.',
+      '아침 일과를 마치면 나는 늘 하루를 시작할 준비가 된 느낌이에요.',
     ],
     vocabulary: [
       { term: 'routine', meaning: '일과, 정해진 순서', example: 'Having a morning routine helps me stay organized.' },
@@ -248,6 +306,15 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'In the afternoon, we built a sandcastle together.',
       'We were tired but very happy on the way home.',
     ],
+    translations: [
+      '지난 주말, 우리 가족은 해변에 갔어요.',
+      '우리는 샌드위치, 물, 큰 파라솔을 챙겼어요.',
+      '해변까지 운전해서 가는 데 약 두 시간이 걸렸어요.',
+      '도착했을 때 하늘은 파랗고 화창했어요.',
+      '형(오빠)과 나는 바다에서 오랫동안 수영했어요.',
+      '오후에는 함께 모래성을 만들었어요.',
+      '집에 오는 길에 우리는 피곤했지만 아주 행복했어요.',
+    ],
     vocabulary: [
       { term: 'pack', meaning: '(짐을) 싸다', example: 'I need to pack my bag before the trip.' },
       { term: 'arrive', meaning: '도착하다', example: 'We arrived at the hotel at noon.' },
@@ -285,6 +352,15 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'For lunch, two coworkers invited me to eat with them.',
       'In the afternoon, I answered emails and organized my files.',
       'I felt a little nervous, but everyone was very kind.',
+    ],
+    translations: [
+      '오늘은 새 사무실에서의 첫 출근일이었어요.',
+      '나는 매니저와 새 동료 몇 명을 만났어요.',
+      '매니저는 내 책상과 컴퓨터를 보여줬어요.',
+      '우리는 내 일과 업무에 대해 짧은 회의를 했어요.',
+      '점심 시간에 동료 두 명이 나를 같이 먹자고 초대했어요.',
+      '오후에는 이메일에 답장하고 파일을 정리했어요.',
+      '조금 긴장됐지만 모두가 아주 친절했어요.',
     ],
     vocabulary: [
       { term: 'manager', meaning: '관리자, 매니저', example: 'My manager gives clear instructions.' },
@@ -324,6 +400,15 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'The city plans to add more trees next year.',
       'People in the town are very happy about the new park.',
     ],
+    translations: [
+      '우리 도시는 지난달에 새 공원을 열었어요.',
+      '그 공원에는 아이들을 위한 큰 놀이터가 있어요.',
+      '작은 호수 주변에는 산책로도 있어요.',
+      '많은 사람들이 매일 개를 데리고 공원에 와요.',
+      '주말에는 가족들이 잔디밭에서 소풍을 즐겨요.',
+      '도시는 내년에 나무를 더 심을 계획이에요.',
+      '마을 사람들은 새 공원에 아주 만족하고 있어요.',
+    ],
     vocabulary: [
       { term: 'playground', meaning: '놀이터', example: 'The children played at the playground.' },
       { term: 'path', meaning: '길, 오솔길', example: 'We walked along the path by the river.' },
@@ -362,6 +447,15 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'Painting helps me relax after a busy week.',
       'I hope to have my own art show one day.',
     ],
+    translations: [
+      '주말에 나는 그림 그리는 것을 좋아해요.',
+      '나는 보통 꽃, 산, 작은 동물들을 그려요.',
+      '내가 즐겨 쓰는 색은 파란색과 초록색이에요.',
+      '나는 온라인 강의로 그림을 배웠어요.',
+      '가끔 친구들이 나에게 그림을 그려달라고 부탁해요.',
+      '그림 그리기는 바쁜 한 주를 보낸 뒤 마음을 편하게 해줘요.',
+      '언젠가 나만의 전시회를 열고 싶어요.',
+    ],
     vocabulary: [
       { term: 'paint', meaning: '(그림을) 그리다, 페인트칠하다', example: 'She likes to paint in the garden.' },
       { term: 'favorite', meaning: '가장 좋아하는', example: 'Blue is my favorite color.' },
@@ -399,6 +493,15 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'Next, I add the cooked pasta to the pan.',
       'Finally, I put some cheese on top of the pasta.',
       'My family always enjoys this simple pasta dinner.',
+    ],
+    translations: [
+      '오늘 밤 나는 저녁으로 파스타를 만들 거예요.',
+      '먼저 큰 냄비에 물을 끓여요.',
+      '물이 끓는 동안 토마토와 양파를 썰어요.',
+      '올리브유를 두른 팬에 채소를 볶아요.',
+      '그다음 삶은 파스타를 팬에 넣어요.',
+      '마지막으로 파스타 위에 치즈를 올려요.',
+      '우리 가족은 이 간단한 파스타 저녁을 항상 좋아해요.',
     ],
     vocabulary: [
       { term: 'boil', meaning: '끓이다', example: 'Boil the water before you add the noodles.' },
@@ -440,6 +543,15 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'Taking short breaks during the day also improves my concentration.',
       'Over time, these small habits have made me feel less stressed and more productive.',
     ],
+    translations: [
+      '많은 사람들이 일과 개인 생활의 균형을 맞추기 어려워해요.',
+      '사무실에서 하루를 꽉 채워 보내고 나면 쉬기가 힘들 수 있어요.',
+      '나는 업무 시간과 자유 시간 사이에 명확한 경계를 두려고 해요.',
+      '예를 들어, 저녁 7시 이후에는 업무 이메일을 확인하지 않아요.',
+      '주말에는 독서나 등산처럼 재충전에 도움이 되는 활동에 집중해요.',
+      '낮 동안 짧게 휴식을 취하는 것도 집중력을 높여줘요.',
+      '시간이 지나면서 이런 작은 습관들 덕분에 스트레스는 줄고 생산성은 높아졌어요.',
+    ],
     vocabulary: [
       { term: 'balance', meaning: '균형을 맞추다', example: 'It is important to balance study and rest.' },
       { term: 'boundary', meaning: '경계, 선', example: 'She sets clear boundaries at work.' },
@@ -477,6 +589,15 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'Luckily, she spoke some English and drew a simple map on a napkin.',
       'Following her directions, I finally found my way back just before sunset.',
       'That experience taught me that getting a little lost can lead to memorable moments.',
+    ],
+    translations: [
+      '지난봄 리스본을 여행했을 때, 나는 지도 없이 돌아다녀 보기로 했어요.',
+      '처음에는 좁은 골목길을 거니는 것이 설레면서도 조금 위험하게 느껴졌어요.',
+      '하지만 한 시간 뒤, 내 호텔이 어디인지 전혀 알 수 없다는 걸 깨달았어요.',
+      '현지 가게 주인에게 길을 물었지만, 내 포르투갈어 실력은 아주 부족했어요.',
+      '다행히 그녀는 영어를 조금 할 줄 알아서 냅킨에 간단한 지도를 그려줬어요.',
+      '그녀의 안내를 따라 해가 지기 직전에 마침내 길을 찾았어요.',
+      '그 경험은 조금 길을 잃는 것이 기억에 남는 순간으로 이어질 수 있다는 걸 알려줬어요.',
     ],
     vocabulary: [
       { term: 'explore', meaning: '탐험하다, 답사하다', example: 'We spent the day exploring the old town.' },
@@ -531,6 +652,15 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'During the interview, maintaining eye contact and speaking calmly can leave a strong impression.',
       'Finally, sending a short thank-you message afterward is a thoughtful and effective habit.',
     ],
+    translations: [
+      '면접을 잘 준비하면 결과에 큰 차이를 만들 수 있어요.',
+      '먼저 회사의 제품, 문화, 최근 소식을 조사하는 것이 도움이 돼요.',
+      '다음으로 지원자는 자주 나오는 질문에 명확하고 자신 있게 답하는 연습을 해야 해요.',
+      '자신의 능력과 성과를 보여주는 구체적인 사례를 준비하는 것도 유용해요.',
+      '면접 당일 몇 분 일찍 도착하는 것은 전문성을 보여줘요.',
+      '면접 중 눈을 맞추고 차분하게 말하면 강한 인상을 남길 수 있어요.',
+      '마지막으로, 면접 후 짧은 감사 메시지를 보내는 것은 배려 있고 효과적인 습관이에요.',
+    ],
     vocabulary: [
       { term: 'candidate', meaning: '지원자, 후보자', example: 'Three candidates applied for the position.' },
       { term: 'confidently', meaning: '자신 있게', example: 'She answered the question confidently.' },
@@ -568,6 +698,15 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'However, remote work also brings challenges, such as feeling isolated from coworkers.',
       'To address this, many companies organize regular video meetings and occasional in-person events.',
       'Experts believe that flexible work arrangements will continue to shape the future of employment.',
+    ],
+    translations: [
+      '지난 몇 년간 재택근무는 전 세계적으로 훨씬 더 흔해졌어요.',
+      '많은 회사들은 직원들이 집에서 일해도 생산성을 유지할 수 있다는 것을 알게 됐어요.',
+      '그 결과 일부 기업은 완전 재택 또는 하이브리드 근무 옵션을 제공해요.',
+      '이러한 변화는 직원들이 시간과 장소를 더 유연하게 관리할 수 있게 해줬어요.',
+      '하지만 재택근무는 동료들과 단절된 느낌 같은 어려움도 가져와요.',
+      '이를 해결하기 위해 많은 회사들은 정기적인 화상 회의와 가끔씩 대면 행사를 마련해요.',
+      '전문가들은 유연 근무 제도가 앞으로도 고용의 미래를 계속 형성할 것이라고 믿어요.',
     ],
     vocabulary: [
       { term: 'remote', meaning: '원격의', example: 'She works remote from another city.' },
@@ -617,6 +756,15 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'Now I sometimes play guitar with friends, which makes practicing even more enjoyable.',
       'Looking back, I am proud that I stayed patient during the difficult early stages.',
     ],
+    translations: [
+      '2년 전, 나는 여가 시간에 기타 치는 법을 배우기로 했어요.',
+      '처음에는 코드를 연습할 때마다 손가락이 아팠어요.',
+      '나는 온라인 강의를 보면서 매일 저녁 약 30분씩 연습했어요.',
+      '점차 손을 보지 않고도 코드를 편하게 바꿀 수 있게 됐어요.',
+      '몇 달 후, 마침내 한 곡을 처음부터 끝까지 연주할 수 있었어요.',
+      '이제는 가끔 친구들과 함께 기타를 치는데, 그게 연습을 더 즐겁게 만들어줘요.',
+      '돌이켜보면, 힘든 초기 단계에서 인내심을 잃지 않았던 것이 자랑스러워요.',
+    ],
     vocabulary: [
       { term: 'chord', meaning: '(악기의) 코드, 화음', example: 'She learned three new chords today.' },
       { term: 'tutorial', meaning: '강의 영상, 튜토리얼', example: 'I found a helpful guitar tutorial online.' },
@@ -664,6 +812,15 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'Grocery stores now offer a wider variety of plant-based products, from milk to burgers.',
       'Still, some people find it challenging to get enough protein without eating meat.',
       'Overall, the plant-based food trend seems likely to keep growing in the coming years.',
+    ],
+    translations: [
+      '최근 몇 년간 더 많은 사람들이 고기 대신 식물성 식단을 선택하기 시작했어요.',
+      '어떤 사람들은 콜레스테롤을 낮추고 싶어서 건강상의 이유로 식물성 식단으로 바꿔요.',
+      '다른 사람들은 환경과 동물 복지에 대한 걱정 때문에 동기를 얻어요.',
+      '식당들은 메뉴에 채식·비건 옵션을 더 추가하는 것으로 대응했어요.',
+      '식료품점은 이제 우유부터 버거까지 다양한 식물성 제품을 제공해요.',
+      '그래도 어떤 사람들은 고기 없이 충분한 단백질을 섭취하는 것이 어렵다고 느껴요.',
+      '전반적으로 식물성 식품 트렌드는 앞으로도 계속 성장할 것으로 보여요.',
     ],
     vocabulary: [
       { term: 'plant-based', meaning: '식물성 기반의', example: 'She follows a plant-based diet.' },
@@ -715,6 +872,15 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'Moreover, tracking progress, even informally, reinforces a sense of accomplishment that fuels continued effort.',
       'Ultimately, the accumulation of small, deliberate choices shapes character and outcomes far more than occasional bursts of ambition.',
     ],
+    translations: [
+      '의미 있는 변화에는 극적이고 전면적인 행동이 필요하다고 믿고 싶어지지만, 연구는 꾸준히 그렇지 않다고 말해줘요.',
+      '매일 반복되는 작고 꾸준한 습관은 시간이 지나면서 흔히 상당한 변화로 누적돼요.',
+      '예를 들어 밤에 겨우 열 페이지를 읽는 것은 사소해 보이지만, 일 년이면 수십 권의 책이 돼요.',
+      '어려움은 새로운 습관을 시작하는 데 있는 것이 아니라, 처음의 동기가 사라진 뒤에도 그것을 유지하는 데 있어요.',
+      '행동과학자들은 새로운 습관을 기존의 일과에 연결하면 유지하기가 훨씬 쉬워진다고 주장해요.',
+      '게다가 비공식적으로라도 진행 상황을 기록하면 성취감이 강화되어 계속 노력하게 돼요.',
+      '결국 작고 의도적인 선택들이 쌓이는 것이 가끔의 야심찬 의지보다 성격과 결과를 훨씬 더 크게 좌우해요.',
+    ],
     vocabulary: [
       { term: 'sweeping', meaning: '광범위한, 전면적인', example: 'The company announced sweeping reforms.' },
       { term: 'compound', meaning: '누적되다, 복합적으로 작용하다', example: 'Small savings compound into a large sum over time.' },
@@ -763,6 +929,15 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'Critics argue that such measures can unfairly limit access for budget-conscious travelers.',
       'Others contend that without intervention, the very attractions that draw tourists will be irreversibly damaged.',
       'Striking a sustainable balance between tourism revenue and local well-being remains an unresolved and pressing challenge.',
+    ],
+    translations: [
+      '최근 몇 년간 세계에서 가장 사랑받는 여행지 여러 곳이 과잉 관광의 여파로 어려움을 겪고 있어요.',
+      '베네치아나 바르셀로나 같은 도시에서는 단기 임대로 인해 주민들이 자기 동네에서 밀려나고 있어요.',
+      '한편 취약한 자연 명소들은 압도적인 관광객 유입으로 침식과 오염에 시달리고 있어요.',
+      '이에 대응해 일부 정부는 방문객 상한제, 입장료, 계절별 제한 등을 도입했어요.',
+      '비판하는 사람들은 이런 조치가 예산이 빠듯한 여행자들의 접근을 부당하게 제한할 수 있다고 주장해요.',
+      '다른 이들은 개입이 없다면 관광객을 끌어들이는 바로 그 명소들이 돌이킬 수 없이 훼손될 것이라고 주장해요.',
+      '관광 수익과 지역 주민의 삶 사이에서 지속 가능한 균형을 찾는 것은 여전히 풀리지 않은 시급한 과제예요.',
     ],
     vocabulary: [
       { term: 'overtourism', meaning: '과잉 관광', example: 'Overtourism has changed the character of the old town.' },
@@ -813,6 +988,15 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'Critics caution that excessive flexibility can lead to ambiguity and slower decision-making in high-pressure situations.',
       'Nonetheless, organizations that successfully balance structure with empowerment often report higher engagement and retention.',
     ],
+    translations: [
+      '위계와 하향식 권위에 기반한 전통적인 리더십 모델은 현대 조직에서 점점 더 의문시되고 있어요.',
+      '특히 젊은 직원들은 경직된 명령 체계보다 투명성, 자율성, 목적을 더 중요하게 여기는 경향이 있어요.',
+      '그 결과 많은 회사들이 신뢰와 공동 의사결정을 강조하는 협력적인 리더십 스타일로 옮겨가고 있어요.',
+      '이는 체계를 완전히 버린다는 뜻이 아니라, 리더의 역할을 통제자가 아닌 촉진자로 재정의한다는 뜻이에요.',
+      '이 새로운 모델에서 유능한 리더는 적극적으로 경청하고, 지시 대신 맥락을 제공하며, 팀이 창의적으로 문제를 해결하도록 권한을 부여해요.',
+      '비판하는 사람들은 지나친 유연성이 긴박한 상황에서 모호함과 느린 의사결정으로 이어질 수 있다고 경고해요.',
+      '그럼에도 불구하고 체계와 권한 위임 사이의 균형을 잘 맞춘 조직은 더 높은 몰입도와 직원 유지율을 보이는 경우가 많아요.',
+    ],
     vocabulary: [
       { term: 'hierarchy', meaning: '위계, 서열', example: 'The company has a strict hierarchy.' },
       { term: 'autonomy', meaning: '자율성', example: 'Employees value autonomy in their work.' },
@@ -861,6 +1045,15 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'Governments and companies alike are exploring policies such as reskilling programs and universal basic income pilots.',
       'Meanwhile, workers in creative and interpersonal fields may find that their skills remain difficult for AI to replicate.',
       'Navigating this transformation thoughtfully will likely determine whether AI ultimately narrows or widens economic inequality.',
+    ],
+    translations: [
+      '인공지능 시스템의 능력이 향상되면서 고용에 미치는 영향에 대한 논쟁이 격화되고 있어요.',
+      '일부 경제학자들은 자동화가 제조업부터 고객 서비스까지 수백만 명의 노동자를 대체할 수 있다고 경고해요.',
+      '다른 이들은 역사적으로 기술 혁명이 기존 일자리를 없애면서도 새로운 일자리를 만들어냈다고 주장해요.',
+      '점점 더 분명해지는 것은 이 전환에 재교육과 교육에 대한 상당한 투자가 필요하다는 점이에요.',
+      '정부와 기업 모두 재교육 프로그램과 기본소득 시범사업 같은 정책을 검토하고 있어요.',
+      '한편 창의적이고 대인관계가 중요한 분야의 노동자들은 자신의 기술을 AI가 복제하기 어렵다는 것을 알게 될 수도 있어요.',
+      '이 변화를 신중하게 헤쳐나가는 것이 결국 AI가 경제적 불평등을 줄일지 넓힐지를 결정할 가능성이 커요.',
     ],
     vocabulary: [
       { term: 'intensify', meaning: '심화되다, 강화되다', example: 'The debate has intensified in recent months.' },
@@ -916,6 +1109,15 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'Interestingly, studies suggest that thousands of hours of deliberate practice can compensate for a lack of early natural talent.',
       'This finding offers an encouraging message: mastery in a hobby is often more a matter of method than innate ability.',
     ],
+    translations: [
+      '대중문화는 흔히 타고난 재능을 전문성의 주된 원동력으로 찬양하지만, 연구는 더 미묘한 이야기를 들려줘요.',
+      '음악가부터 운동선수까지 최고 수준의 사람들을 연구한 심리학자들은 의도적 연습이 매우 큰 역할을 한다는 것을 발견했어요.',
+      '단순 반복과 달리 의도적 연습은 구체적인 목표를 세우고, 피드백을 구하고, 꾸준히 안전지대 밖으로 나아가는 것을 포함해요.',
+      '예를 들어 바이올리니스트는 어려운 한 소절만 따로 떼어내 모든 음이 정확해질 때까지 천천히 반복할 수 있어요.',
+      '이렇게 집중적이고 노력이 필요한 연습은 정신적으로 힘들기 때문에 대부분의 사람들이 오래 지속하기를 피해요.',
+      '흥미롭게도 연구에 따르면 수천 시간의 의도적 연습이 어릴 때 타고난 재능의 부족을 보완할 수 있다고 해요.',
+      '이 발견은 취미의 숙달이 타고난 능력보다는 방법의 문제인 경우가 많다는 희망적인 메시지를 줘요.',
+    ],
     vocabulary: [
       { term: 'innate', meaning: '타고난, 선천적인', example: 'Some people believe musical ability is innate.' },
       { term: 'nuanced', meaning: '미묘한, 세밀한', example: 'The report offers a nuanced view of the issue.' },
@@ -969,6 +1171,15 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       'Some cities have begun addressing this issue through composting programs and stricter regulations on retailer food disposal.',
       'At the individual level, simple habits like meal planning and proper storage can significantly reduce household waste.',
       'Tackling food waste, experts argue, is one of the most cost-effective strategies available for mitigating climate change.',
+    ],
+    translations: [
+      '유엔 추정에 따르면 매년 전 세계에서 생산되는 식량의 약 3분의 1이 손실되거나 버려져요.',
+      '이러한 낭비는 농장과 가공 공장부터 식당과 가정 주방까지 공급망의 모든 단계에서 발생해요.',
+      '수백만 명이 굶주리는 가운데 먹을 수 있는 음식을 버리는 윤리적 문제를 넘어, 환경적 비용도 엄청나요.',
+      '매립지에서 분해되는 음식물은 단기적으로 이산화탄소보다 훨씬 강력한 온실가스인 메탄을 방출해요.',
+      '일부 도시는 퇴비화 프로그램과 소매업체의 음식물 폐기에 대한 더 엄격한 규제를 통해 이 문제를 해결하기 시작했어요.',
+      '개인 차원에서는 식단 계획이나 적절한 보관 같은 간단한 습관이 가정의 음식물 쓰레기를 크게 줄일 수 있어요.',
+      '전문가들은 음식물 쓰레기 문제 해결이 기후 변화를 완화하는 데 가장 비용 효율적인 전략 중 하나라고 주장해요.',
     ],
     vocabulary: [
       { term: 'staggering', meaning: '엄청난, 충격적인', example: 'The cost of the project was staggering.' },

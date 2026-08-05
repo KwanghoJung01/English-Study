@@ -27,6 +27,7 @@ export function pickBankPassage(level: Level, topic: TopicId, recentKeys: string
     topicLabel: getTopicLabel(chosen.topic),
     title: chosen.title,
     sentences: chosen.sentences,
+    translations: chosen.translations,
     vocabulary: chosen.vocabulary,
     questions: chosen.questions,
     source: 'bank',

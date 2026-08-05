@@ -7,6 +7,7 @@ const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODE
 interface GeminiPassagePayload {
   title: string
   sentences: string[]
+  translations: string[]
   vocabulary: { term: string; meaning: string; example: string }[]
   questions: { question: string; choices: string[]; answerIndex: number }[]
 }
@@ -29,6 +30,7 @@ ${level === 'intro' ? INTRO_LEVEL_GUIDANCE : ''}
 Requirements:
 - ${level === 'intro' ? '5 to 7' : '6 to 9'} natural, connected English sentences (as an array, one sentence per element, no numbering).
 - Vocabulary difficulty must match the level.
+- Provide a natural, accurate Korean translation for EVERY sentence, in the same order, as a "translations" array with exactly the same length as "sentences" (translations[i] must correspond to sentences[i]).
 - Provide 5 to 8 key vocabulary items from the passage: English term, Korean meaning, and one example English sentence (different from the passage sentences).
 - Provide 3 multiple-choice reading comprehension questions in English about the passage, each with exactly 4 choices and a zero-based answerIndex.
 - Provide a short title for the passage.
@@ -37,6 +39,7 @@ Respond with ONLY valid JSON matching this shape, no markdown fences:
 {
   "title": string,
   "sentences": string[],
+  "translations": string[],
   "vocabulary": [{ "term": string, "meaning": string, "example": string }],
   "questions": [{ "question": string, "choices": string[4], "answerIndex": number }]
 }`
@@ -80,6 +83,9 @@ export async function generateWithGemini(
     throw new Error('Gemini 응답에 문장이 없습니다.')
   }
 
+  const translations = Array.isArray(parsed.translations) ? parsed.translations : []
+  const paddedTranslations = parsed.sentences.map((_, i) => translations[i] ?? '')
+
   return {
     id: `gemini-${Date.now()}`,
     level,
@@ -87,6 +93,7 @@ export async function generateWithGemini(
     topicLabel,
     title: parsed.title || topicLabel,
     sentences: parsed.sentences,
+    translations: paddedTranslations,
     vocabulary: parsed.vocabulary ?? [],
     questions: parsed.questions ?? [],
     source: 'gemini',

@@ -39,9 +39,11 @@ export default function Reading() {
   const [submitted, setSubmitted] = useState(false)
   const [listening, setListening] = useState(false)
 
+  const [showTranslations, setShowTranslations] = useState(false)
+
   const terms = useMemo(() => passage?.vocabulary.map((v) => v.term) ?? [], [passage])
-  const paragraphHtml = useMemo(
-    () => (passage ? highlightVocab(passage.sentences.join(' '), terms) : ''),
+  const sentenceHtmls = useMemo(
+    () => (passage ? passage.sentences.map((s) => highlightVocab(s, terms)) : []),
     [passage, terms],
   )
 
@@ -97,11 +99,37 @@ export default function Reading() {
         )}
 
         <Card className="flex flex-col gap-3">
-          <h2 className="text-lg font-bold">{passage.title}</h2>
-          <p
-            className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-            dangerouslySetInnerHTML={{ __html: paragraphHtml }}
-          />
+          <div className="flex items-start justify-between gap-2">
+            <h2 className="text-lg font-bold">{passage.title}</h2>
+            <button
+              type="button"
+              onClick={() => setShowTranslations((s) => !s)}
+              className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
+                showTranslations
+                  ? 'border-indigo-500 bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300'
+                  : 'border-slate-200 text-slate-500 dark:border-slate-700 dark:text-slate-400'
+              }`}
+            >
+              {showTranslations ? '🇰🇷 해석 숨기기' : '🇰🇷 해석 보기'}
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            {passage.sentences.map((_, i) => (
+              <div key={i} className="flex flex-col gap-1">
+                <p
+                  className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+                  dangerouslySetInnerHTML={{ __html: sentenceHtmls[i] }}
+                />
+                {showTranslations && passage.translations[i] && (
+                  <p className="text-sm leading-relaxed text-slate-400 dark:text-slate-500">
+                    {passage.translations[i]}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+
           <Button variant="secondary" onClick={handleListenPassage} disabled={listening || !isTtsSupported()}>
             {listening ? '🔊 읽어주는 중…' : '🔊 원어민이 전체 읽어주기'}
           </Button>

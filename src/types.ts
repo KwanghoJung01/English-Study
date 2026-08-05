@@ -51,6 +51,8 @@ export interface Passage {
   topicLabel: string
   title: string
   sentences: string[]
+  /** sentences와 1:1로 대응하는 한국어 해석 (없으면 빈 문자열) */
+  translations: string[]
   vocabulary: VocabItem[]
   questions: ComprehensionQuestion[]
   source: 'gemini' | 'bank'
