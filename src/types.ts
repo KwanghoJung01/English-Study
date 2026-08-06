@@ -36,6 +36,10 @@ export interface VocabItem {
   term: string
   meaning: string
   example: string
+  /** 자연스러운 동의어가 있을 때만 채운다(영어, 한글 뜻 포함 표기: "large (큰)"). */
+  synonym?: string
+  /** 자연스러운 반대말이 있을 때만 채운다. */
+  antonym?: string
 }
 
 export interface ComprehensionQuestion {

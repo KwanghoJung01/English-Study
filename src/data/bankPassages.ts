@@ -43,10 +43,10 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       '나는 9시에 자러 가요.',
     ],
     vocabulary: [
-      { term: 'get up', meaning: '일어나다', example: 'I get up early every day.' },
+      { term: 'get up', meaning: '일어나다', example: 'I get up early every day.', synonym: 'wake up (일어나다)', antonym: 'go to bed (자다)' },
       { term: 'breakfast', meaning: '아침밥', example: 'I eat breakfast at home.' },
       { term: 'school', meaning: '학교', example: 'I like my school.' },
-      { term: 'play', meaning: '놀다', example: 'I play with my friends.' },
+      { term: 'play', meaning: '놀다', example: 'I play with my friends.', antonym: 'study (공부하다)' },
       { term: 'homework', meaning: '숙제', example: 'I do my homework after school.' },
     ],
     questions: [
@@ -82,8 +82,8 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
     vocabulary: [
       { term: 'dog', meaning: '개', example: 'The dog is happy.' },
       { term: 'brown', meaning: '갈색의', example: 'My bag is brown.' },
-      { term: 'big', meaning: '큰', example: 'That is a big house.' },
-      { term: 'run', meaning: '달리다', example: 'I can run fast.' },
+      { term: 'big', meaning: '큰', example: 'That is a big house.', synonym: 'large (큰)', antonym: 'small (작은)' },
+      { term: 'run', meaning: '달리다', example: 'I can run fast.', antonym: 'walk (걷다)' },
       { term: 'jump', meaning: '뛰다, 점프하다', example: 'The cat can jump high.' },
     ],
     questions: [
@@ -114,7 +114,7 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
     ],
     vocabulary: [
       { term: 'teacher', meaning: '선생님', example: 'My teacher is kind.' },
-      { term: 'kind', meaning: '친절한', example: 'She is a kind friend.' },
+      { term: 'kind', meaning: '친절한', example: 'She is a kind friend.', synonym: 'nice (친절한)', antonym: 'mean (못된)' },
       { term: 'read', meaning: '읽다', example: 'I read a book every night.' },
       { term: 'write', meaning: '쓰다', example: 'I write my name.' },
       { term: 'recess', meaning: '쉬는 시간', example: 'We play at recess.' },
@@ -154,7 +154,7 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       { term: 'picture', meaning: '그림', example: 'This is my picture.' },
       { term: 'color', meaning: '색깔', example: 'I like many colors.' },
       { term: 'favorite', meaning: '가장 좋아하는', example: 'Blue is my favorite color.' },
-      { term: 'weekend', meaning: '주말', example: 'I play on the weekend.' },
+      { term: 'weekend', meaning: '주말', example: 'I play on the weekend.', antonym: 'weekday (평일)' },
     ],
     questions: [
       {
@@ -192,9 +192,9 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
     ],
     vocabulary: [
       { term: 'pizza', meaning: '피자', example: 'I eat pizza on Friday.' },
-      { term: 'round', meaning: '둥근', example: 'The ball is round.' },
+      { term: 'round', meaning: '둥근', example: 'The ball is round.', antonym: 'square (네모난)' },
       { term: 'apple', meaning: '사과', example: 'I eat an apple every day.' },
-      { term: 'sweet', meaning: '달콤한', example: 'This candy is sweet.' },
+      { term: 'sweet', meaning: '달콤한', example: 'This candy is sweet.', antonym: 'sour (신)' },
       { term: 'milk', meaning: '우유', example: 'I drink milk in the morning.' },
     ],
     questions: [
@@ -269,11 +269,11 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       '아침 일과를 마치면 나는 늘 하루를 시작할 준비가 된 느낌이에요.',
     ],
     vocabulary: [
-      { term: 'routine', meaning: '일과, 정해진 순서', example: 'Having a morning routine helps me stay organized.' },
+      { term: 'routine', meaning: '일과, 정해진 순서', example: 'Having a morning routine helps me stay organized.', synonym: 'habit (습관)' },
       { term: 'brush', meaning: '(이를) 닦다, 솔질하다', example: 'Please brush your teeth twice a day.' },
-      { term: 'simple', meaning: '간단한', example: 'She made a simple dinner for the family.' },
-      { term: 'usually', meaning: '보통, 대개', example: 'I usually go to bed at eleven.' },
-      { term: 'ready', meaning: '준비된', example: 'Are you ready to go?' },
+      { term: 'simple', meaning: '간단한', example: 'She made a simple dinner for the family.', synonym: 'easy (쉬운)', antonym: 'complicated (복잡한)' },
+      { term: 'usually', meaning: '보통, 대개', example: 'I usually go to bed at eleven.', synonym: 'normally (보통)' },
+      { term: 'ready', meaning: '준비된', example: 'Are you ready to go?', antonym: 'unprepared (준비가 안 된)' },
     ],
     questions: [
       {
@@ -316,11 +316,11 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       '집에 오는 길에 우리는 피곤했지만 아주 행복했어요.',
     ],
     vocabulary: [
-      { term: 'pack', meaning: '(짐을) 싸다', example: 'I need to pack my bag before the trip.' },
-      { term: 'arrive', meaning: '도착하다', example: 'We arrived at the hotel at noon.' },
-      { term: 'ocean', meaning: '바다, 대양', example: 'The ocean was calm and clear.' },
+      { term: 'pack', meaning: '(짐을) 싸다', example: 'I need to pack my bag before the trip.', antonym: 'unpack (짐을 풀다)' },
+      { term: 'arrive', meaning: '도착하다', example: 'We arrived at the hotel at noon.', antonym: 'leave (떠나다)' },
+      { term: 'ocean', meaning: '바다, 대양', example: 'The ocean was calm and clear.', synonym: 'sea (바다)' },
       { term: 'sandcastle', meaning: '모래성', example: 'The children built a huge sandcastle.' },
-      { term: 'tired', meaning: '피곤한', example: 'I was tired after the long walk.' },
+      { term: 'tired', meaning: '피곤한', example: 'I was tired after the long walk.', synonym: 'exhausted (지친)', antonym: 'energetic (활기찬)' },
     ],
     questions: [
       {
@@ -363,11 +363,11 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       '조금 긴장됐지만 모두가 아주 친절했어요.',
     ],
     vocabulary: [
-      { term: 'manager', meaning: '관리자, 매니저', example: 'My manager gives clear instructions.' },
-      { term: 'coworker', meaning: '동료', example: 'I had lunch with a coworker today.' },
-      { term: 'task', meaning: '업무, 과제', example: 'I finished all my tasks before five.' },
-      { term: 'organize', meaning: '정리하다', example: 'Please organize these files by date.' },
-      { term: 'nervous', meaning: '긴장한', example: 'She felt nervous before the interview.' },
+      { term: 'manager', meaning: '관리자, 매니저', example: 'My manager gives clear instructions.', synonym: 'boss (상사)' },
+      { term: 'coworker', meaning: '동료', example: 'I had lunch with a coworker today.', synonym: 'colleague (동료)' },
+      { term: 'task', meaning: '업무, 과제', example: 'I finished all my tasks before five.', synonym: 'job (일)' },
+      { term: 'organize', meaning: '정리하다', example: 'Please organize these files by date.', antonym: 'mess up (어지럽히다)' },
+      { term: 'nervous', meaning: '긴장한', example: 'She felt nervous before the interview.', synonym: 'anxious (불안한)', antonym: 'calm (차분한)' },
     ],
     questions: [
       {
@@ -411,10 +411,10 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
     ],
     vocabulary: [
       { term: 'playground', meaning: '놀이터', example: 'The children played at the playground.' },
-      { term: 'path', meaning: '길, 오솔길', example: 'We walked along the path by the river.' },
+      { term: 'path', meaning: '길, 오솔길', example: 'We walked along the path by the river.', synonym: 'trail (오솔길)' },
       { term: 'picnic', meaning: '소풍, 피크닉', example: 'We had a picnic in the park.' },
-      { term: 'plan', meaning: '계획하다', example: 'They plan to build a new school.' },
-      { term: 'town', meaning: '마을, 소도시', example: 'It is a small, quiet town.' },
+      { term: 'plan', meaning: '계획하다', example: 'They plan to build a new school.', synonym: 'intend (의도하다)' },
+      { term: 'town', meaning: '마을, 소도시', example: 'It is a small, quiet town.', synonym: 'city (도시)' },
     ],
     questions: [
       {
@@ -457,11 +457,11 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       '언젠가 나만의 전시회를 열고 싶어요.',
     ],
     vocabulary: [
-      { term: 'paint', meaning: '(그림을) 그리다, 페인트칠하다', example: 'She likes to paint in the garden.' },
+      { term: 'paint', meaning: '(그림을) 그리다, 페인트칠하다', example: 'She likes to paint in the garden.', synonym: 'draw (그리다)' },
       { term: 'favorite', meaning: '가장 좋아하는', example: 'Blue is my favorite color.' },
-      { term: 'relax', meaning: '휴식을 취하다', example: 'I relax by listening to music.' },
-      { term: 'busy', meaning: '바쁜', example: 'This week has been very busy.' },
-      { term: 'hope', meaning: '바라다, 희망하다', example: 'I hope to visit Japan next year.' },
+      { term: 'relax', meaning: '휴식을 취하다', example: 'I relax by listening to music.', antonym: 'stress (스트레스를 받다)' },
+      { term: 'busy', meaning: '바쁜', example: 'This week has been very busy.', antonym: 'free (한가한)' },
+      { term: 'hope', meaning: '바라다, 희망하다', example: 'I hope to visit Japan next year.', synonym: 'wish (바라다)' },
     ],
     questions: [
       {
@@ -505,10 +505,10 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
     ],
     vocabulary: [
       { term: 'boil', meaning: '끓이다', example: 'Boil the water before you add the noodles.' },
-      { term: 'chop', meaning: '(잘게) 썰다', example: 'Chop the onions into small pieces.' },
+      { term: 'chop', meaning: '(잘게) 썰다', example: 'Chop the onions into small pieces.', synonym: 'cut (자르다)' },
       { term: 'pan', meaning: '팬, 프라이팬', example: 'Heat the pan before you add oil.' },
-      { term: 'add', meaning: '추가하다, 넣다', example: 'Add some salt to the soup.' },
-      { term: 'enjoy', meaning: '즐기다', example: 'We enjoy eating together on weekends.' },
+      { term: 'add', meaning: '추가하다, 넣다', example: 'Add some salt to the soup.', antonym: 'remove (제거하다)' },
+      { term: 'enjoy', meaning: '즐기다', example: 'We enjoy eating together on weekends.', synonym: 'like (좋아하다)' },
     ],
     questions: [
       {
@@ -554,10 +554,10 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
     ],
     vocabulary: [
       { term: 'balance', meaning: '균형을 맞추다', example: 'It is important to balance study and rest.' },
-      { term: 'boundary', meaning: '경계, 선', example: 'She sets clear boundaries at work.' },
-      { term: 'recharge', meaning: '재충전하다', example: 'A short walk helps me recharge.' },
-      { term: 'concentration', meaning: '집중력', example: 'Noise can affect your concentration.' },
-      { term: 'productive', meaning: '생산적인', example: 'I feel more productive in the morning.' },
+      { term: 'boundary', meaning: '경계, 선', example: 'She sets clear boundaries at work.', synonym: 'limit (한계)' },
+      { term: 'recharge', meaning: '재충전하다', example: 'A short walk helps me recharge.', synonym: 'refresh (재충전하다)' },
+      { term: 'concentration', meaning: '집중력', example: 'Noise can affect your concentration.', synonym: 'focus (집중)' },
+      { term: 'productive', meaning: '생산적인', example: 'I feel more productive in the morning.', antonym: 'unproductive (비생산적인)' },
     ],
     questions: [
       {
@@ -600,11 +600,11 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       '그 경험은 조금 길을 잃는 것이 기억에 남는 순간으로 이어질 수 있다는 걸 알려줬어요.',
     ],
     vocabulary: [
-      { term: 'explore', meaning: '탐험하다, 답사하다', example: 'We spent the day exploring the old town.' },
-      { term: 'wander', meaning: '거닐다, 돌아다니다', example: 'They wandered around the market for hours.' },
-      { term: 'risky', meaning: '위험한, 모험적인', example: 'Traveling alone can feel risky at times.' },
-      { term: 'limited', meaning: '제한된, 부족한', example: 'My knowledge of French is very limited.' },
-      { term: 'memorable', meaning: '기억에 남는', example: 'It was a memorable trip for the whole family.' },
+      { term: 'explore', meaning: '탐험하다, 답사하다', example: 'We spent the day exploring the old town.', synonym: 'discover (발견하다)' },
+      { term: 'wander', meaning: '거닐다, 돌아다니다', example: 'They wandered around the market for hours.', synonym: 'roam (돌아다니다)' },
+      { term: 'risky', meaning: '위험한, 모험적인', example: 'Traveling alone can feel risky at times.', antonym: 'safe (안전한)' },
+      { term: 'limited', meaning: '제한된, 부족한', example: 'My knowledge of French is very limited.', antonym: 'unlimited (무제한의)' },
+      { term: 'memorable', meaning: '기억에 남는', example: 'It was a memorable trip for the whole family.', antonym: 'forgettable (잊혀지는)' },
     ],
     questions: [
       {
@@ -662,9 +662,9 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       '마지막으로, 면접 후 짧은 감사 메시지를 보내는 것은 배려 있고 효과적인 습관이에요.',
     ],
     vocabulary: [
-      { term: 'candidate', meaning: '지원자, 후보자', example: 'Three candidates applied for the position.' },
-      { term: 'confidently', meaning: '자신 있게', example: 'She answered the question confidently.' },
-      { term: 'achievement', meaning: '성취, 업적', example: 'This award is a great achievement.' },
+      { term: 'candidate', meaning: '지원자, 후보자', example: 'Three candidates applied for the position.', synonym: 'applicant (지원자)' },
+      { term: 'confidently', meaning: '자신 있게', example: 'She answered the question confidently.', antonym: 'nervously (불안하게)' },
+      { term: 'achievement', meaning: '성취, 업적', example: 'This award is a great achievement.', synonym: 'accomplishment (업적)' },
       { term: 'professionalism', meaning: '전문성, 프로다움', example: 'He handled the situation with professionalism.' },
       { term: 'impression', meaning: '인상', example: 'She made a great first impression.' },
     ],
@@ -709,11 +709,11 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       '전문가들은 유연 근무 제도가 앞으로도 고용의 미래를 계속 형성할 것이라고 믿어요.',
     ],
     vocabulary: [
-      { term: 'remote', meaning: '원격의', example: 'She works remote from another city.' },
+      { term: 'remote', meaning: '원격의', example: 'She works remote from another city.', antonym: 'on-site (현장의)' },
       { term: 'hybrid', meaning: '혼합의, 하이브리드의', example: 'Our office uses a hybrid work schedule.' },
-      { term: 'flexibility', meaning: '유연성', example: 'This job offers a lot of flexibility.' },
-      { term: 'isolated', meaning: '고립된', example: 'Working alone can make you feel isolated.' },
-      { term: 'arrangement', meaning: '제도, 준비', example: 'They agreed on a new work arrangement.' },
+      { term: 'flexibility', meaning: '유연성', example: 'This job offers a lot of flexibility.', antonym: 'rigidity (경직성)' },
+      { term: 'isolated', meaning: '고립된', example: 'Working alone can make you feel isolated.', antonym: 'connected (연결된)' },
+      { term: 'arrangement', meaning: '제도, 준비', example: 'They agreed on a new work arrangement.', synonym: 'system (체계)' },
     ],
     questions: [
       {
@@ -767,10 +767,10 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
     ],
     vocabulary: [
       { term: 'chord', meaning: '(악기의) 코드, 화음', example: 'She learned three new chords today.' },
-      { term: 'tutorial', meaning: '강의 영상, 튜토리얼', example: 'I found a helpful guitar tutorial online.' },
-      { term: 'comfortable', meaning: '편안한, 익숙한', example: 'He feels comfortable speaking in public now.' },
-      { term: 'patient', meaning: '인내심 있는', example: 'You need to be patient when learning a skill.' },
-      { term: 'stage', meaning: '단계', example: 'The early stages of learning are the hardest.' },
+      { term: 'tutorial', meaning: '강의 영상, 튜토리얼', example: 'I found a helpful guitar tutorial online.', synonym: 'lesson (강의)' },
+      { term: 'comfortable', meaning: '편안한, 익숙한', example: 'He feels comfortable speaking in public now.', antonym: 'uncomfortable (불편한)' },
+      { term: 'patient', meaning: '인내심 있는', example: 'You need to be patient when learning a skill.', antonym: 'impatient (참을성 없는)' },
+      { term: 'stage', meaning: '단계', example: 'The early stages of learning are the hardest.', synonym: 'phase (단계)' },
     ],
     questions: [
       {
@@ -823,9 +823,9 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       '전반적으로 식물성 식품 트렌드는 앞으로도 계속 성장할 것으로 보여요.',
     ],
     vocabulary: [
-      { term: 'plant-based', meaning: '식물성 기반의', example: 'She follows a plant-based diet.' },
+      { term: 'plant-based', meaning: '식물성 기반의', example: 'She follows a plant-based diet.', antonym: 'meat-based (고기 기반의)' },
       { term: 'cholesterol', meaning: '콜레스테롤', example: 'A healthy diet can lower your cholesterol.' },
-      { term: 'motivated', meaning: '동기가 부여된', example: 'He is motivated to eat healthier.' },
+      { term: 'motivated', meaning: '동기가 부여된', example: 'He is motivated to eat healthier.', antonym: 'unmotivated (의욕 없는)' },
       { term: 'vegan', meaning: '비건, 완전 채식의', example: 'This restaurant has several vegan dishes.' },
       { term: 'protein', meaning: '단백질', example: 'Beans are a good source of protein.' },
     ],
@@ -882,12 +882,12 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       '결국 작고 의도적인 선택들이 쌓이는 것이 가끔의 야심찬 의지보다 성격과 결과를 훨씬 더 크게 좌우해요.',
     ],
     vocabulary: [
-      { term: 'sweeping', meaning: '광범위한, 전면적인', example: 'The company announced sweeping reforms.' },
+      { term: 'sweeping', meaning: '광범위한, 전면적인', example: 'The company announced sweeping reforms.', synonym: 'extensive (광범위한)' },
       { term: 'compound', meaning: '누적되다, 복합적으로 작용하다', example: 'Small savings compound into a large sum over time.' },
-      { term: 'trivial', meaning: '사소한', example: 'The mistake seemed trivial at first.' },
-      { term: 'sustain', meaning: '지속하다, 유지하다', example: 'It is hard to sustain motivation for months.' },
-      { term: 'reinforce', meaning: '강화하다', example: 'Positive feedback reinforces good behavior.' },
-      { term: 'accumulation', meaning: '축적', example: 'Success is often an accumulation of small efforts.' },
+      { term: 'trivial', meaning: '사소한', example: 'The mistake seemed trivial at first.', antonym: 'significant (중요한)' },
+      { term: 'sustain', meaning: '지속하다, 유지하다', example: 'It is hard to sustain motivation for months.', synonym: 'maintain (유지하다)' },
+      { term: 'reinforce', meaning: '강화하다', example: 'Positive feedback reinforces good behavior.', synonym: 'strengthen (강화하다)' },
+      { term: 'accumulation', meaning: '축적', example: 'Success is often an accumulation of small efforts.', antonym: 'depletion (고갈)' },
     ],
     questions: [
       {
@@ -941,11 +941,11 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
     ],
     vocabulary: [
       { term: 'overtourism', meaning: '과잉 관광', example: 'Overtourism has changed the character of the old town.' },
-      { term: 'fragile', meaning: '취약한, 연약한', example: 'The coral reef is a fragile ecosystem.' },
-      { term: 'influx', meaning: '유입, 밀려듦', example: 'The city saw a huge influx of tourists in summer.' },
+      { term: 'fragile', meaning: '취약한, 연약한', example: 'The coral reef is a fragile ecosystem.', antonym: 'robust (견고한)' },
+      { term: 'influx', meaning: '유입, 밀려듦', example: 'The city saw a huge influx of tourists in summer.', antonym: 'outflow (유출)' },
       { term: 'intervention', meaning: '개입, 조치', example: 'Government intervention slowed the price increase.' },
-      { term: 'irreversibly', meaning: '돌이킬 수 없이', example: 'The forest was irreversibly damaged by the fire.' },
-      { term: 'pressing', meaning: '긴급한, 시급한', example: 'Climate change is a pressing global issue.' },
+      { term: 'irreversibly', meaning: '돌이킬 수 없이', example: 'The forest was irreversibly damaged by the fire.', antonym: 'reversibly (되돌릴 수 있게)' },
+      { term: 'pressing', meaning: '긴급한, 시급한', example: 'Climate change is a pressing global issue.', synonym: 'urgent (긴급한)' },
     ],
     questions: [
       {
@@ -999,11 +999,11 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
     ],
     vocabulary: [
       { term: 'hierarchy', meaning: '위계, 서열', example: 'The company has a strict hierarchy.' },
-      { term: 'autonomy', meaning: '자율성', example: 'Employees value autonomy in their work.' },
+      { term: 'autonomy', meaning: '자율성', example: 'Employees value autonomy in their work.', antonym: 'dependency (의존성)' },
       { term: 'facilitator', meaning: '촉진자, 조력자', example: 'The manager acts as a facilitator, not a controller.' },
-      { term: 'empower', meaning: '권한을 부여하다', example: 'Good leaders empower their teams.' },
-      { term: 'ambiguity', meaning: '모호함', example: 'Too much ambiguity can confuse employees.' },
-      { term: 'retention', meaning: '(직원) 유지, 보유', example: 'Good benefits improve employee retention.' },
+      { term: 'empower', meaning: '권한을 부여하다', example: 'Good leaders empower their teams.', antonym: 'restrict (제한하다)' },
+      { term: 'ambiguity', meaning: '모호함', example: 'Too much ambiguity can confuse employees.', antonym: 'clarity (명확성)' },
+      { term: 'retention', meaning: '(직원) 유지, 보유', example: 'Good benefits improve employee retention.', antonym: 'turnover (이직)' },
     ],
     questions: [
       {
@@ -1056,12 +1056,12 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       '이 변화를 신중하게 헤쳐나가는 것이 결국 AI가 경제적 불평등을 줄일지 넓힐지를 결정할 가능성이 커요.',
     ],
     vocabulary: [
-      { term: 'intensify', meaning: '심화되다, 강화되다', example: 'The debate has intensified in recent months.' },
+      { term: 'intensify', meaning: '심화되다, 강화되다', example: 'The debate has intensified in recent months.', antonym: 'ease (완화되다)' },
       { term: 'displace', meaning: '대체하다, 밀어내다', example: 'Automation may displace certain jobs.' },
       { term: 'retraining', meaning: '재교육', example: 'The government funded a retraining program.' },
       { term: 'reskilling', meaning: '재교육을 통한 기술 습득', example: 'Reskilling helps workers adapt to new industries.' },
-      { term: 'replicate', meaning: '복제하다, 재현하다', example: 'It is hard for AI to replicate human empathy.' },
-      { term: 'inequality', meaning: '불평등', example: 'The policy aims to reduce economic inequality.' },
+      { term: 'replicate', meaning: '복제하다, 재현하다', example: 'It is hard for AI to replicate human empathy.', synonym: 'reproduce (재현하다)' },
+      { term: 'inequality', meaning: '불평등', example: 'The policy aims to reduce economic inequality.', antonym: 'equality (평등)' },
     ],
     questions: [
       {
@@ -1119,10 +1119,10 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       '이 발견은 취미의 숙달이 타고난 능력보다는 방법의 문제인 경우가 많다는 희망적인 메시지를 줘요.',
     ],
     vocabulary: [
-      { term: 'innate', meaning: '타고난, 선천적인', example: 'Some people believe musical ability is innate.' },
+      { term: 'innate', meaning: '타고난, 선천적인', example: 'Some people believe musical ability is innate.', antonym: 'acquired (습득된)' },
       { term: 'nuanced', meaning: '미묘한, 세밀한', example: 'The report offers a nuanced view of the issue.' },
-      { term: 'deliberate', meaning: '의도적인, 신중한', example: 'Deliberate practice requires full concentration.' },
-      { term: 'isolate', meaning: '분리하다, 고립시키다', example: 'She isolated the hardest part of the song to practice.' },
+      { term: 'deliberate', meaning: '의도적인, 신중한', example: 'Deliberate practice requires full concentration.', antonym: 'careless (부주의한)' },
+      { term: 'isolate', meaning: '분리하다, 고립시키다', example: 'She isolated the hardest part of the song to practice.', synonym: 'separate (분리하다)' },
       { term: 'compensate', meaning: '보완하다, 상쇄하다', example: 'Hard work can compensate for a slow start.' },
       { term: 'mastery', meaning: '숙달, 통달', example: 'Mastery of a skill takes years of practice.' },
     ],
@@ -1182,12 +1182,12 @@ const RAW_BANK: Omit<BankPassage, 'key'>[] = [
       '전문가들은 음식물 쓰레기 문제 해결이 기후 변화를 완화하는 데 가장 비용 효율적인 전략 중 하나라고 주장해요.',
     ],
     vocabulary: [
-      { term: 'staggering', meaning: '엄청난, 충격적인', example: 'The cost of the project was staggering.' },
+      { term: 'staggering', meaning: '엄청난, 충격적인', example: 'The cost of the project was staggering.', synonym: 'enormous (엄청난)' },
       { term: 'decompose', meaning: '분해되다, 부패하다', example: 'Food decomposes faster in warm weather.' },
-      { term: 'potent', meaning: '강력한', example: 'Methane is a potent greenhouse gas.' },
+      { term: 'potent', meaning: '강력한', example: 'Methane is a potent greenhouse gas.', antonym: 'weak (약한)' },
       { term: 'composting', meaning: '퇴비화', example: 'The city started a composting program.' },
       { term: 'disposal', meaning: '처리, 폐기', example: 'Proper waste disposal protects the environment.' },
-      { term: 'mitigate', meaning: '완화하다', example: 'These steps help mitigate climate change.' },
+      { term: 'mitigate', meaning: '완화하다', example: 'These steps help mitigate climate change.', antonym: 'worsen (악화시키다)' },
     ],
     questions: [
       {

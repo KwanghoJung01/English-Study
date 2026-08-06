@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import FocusLayout from '../components/FocusLayout'
-import { Button, Card } from '../components/ui'
+import { Badge, Button, Card } from '../components/ui'
 import SpeedControl from '../components/SpeedControl'
 import { useLessonFlow } from '../lib/lessonFlow'
 import { speak } from '../lib/speech'
@@ -66,9 +66,23 @@ export default function Vocabulary() {
             {current.term} 🔊
           </button>
           {revealed ? (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col items-center gap-2">
               <p className="text-base font-semibold">{current.meaning}</p>
               <p className="text-sm italic text-slate-500 dark:text-slate-400">"{current.example}"</p>
+              {(current.synonym || current.antonym) && (
+                <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
+                  {current.synonym && (
+                    <Badge tone="emerald">
+                      <span className="opacity-70">유의어</span> {current.synonym}
+                    </Badge>
+                  )}
+                  {current.antonym && (
+                    <Badge tone="amber">
+                      <span className="opacity-70">반대말</span> {current.antonym}
+                    </Badge>
+                  )}
+                </div>
+              )}
             </div>
           ) : (
             <Button variant="secondary" onClick={() => setRevealed(true)}>

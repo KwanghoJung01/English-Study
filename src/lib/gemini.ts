@@ -8,7 +8,7 @@ interface GeminiPassagePayload {
   title: string
   sentences: string[]
   translations: string[]
-  vocabulary: { term: string; meaning: string; example: string }[]
+  vocabulary: { term: string; meaning: string; example: string; synonym?: string; antonym?: string }[]
   questions: { question: string; choices: string[]; answerIndex: number }[]
 }
 
@@ -32,6 +32,7 @@ Requirements:
 - Vocabulary difficulty must match the level.
 - Provide a natural, accurate Korean translation for EVERY sentence, in the same order, as a "translations" array with exactly the same length as "sentences" (translations[i] must correspond to sentences[i]).
 - Provide 5 to 8 key vocabulary items from the passage: English term, Korean meaning, and one example English sentence (different from the passage sentences).
+- For each vocabulary item, ONLY IF a natural, level-appropriate synonym and/or antonym exists, include it as "synonym"/"antonym" formatted as "english word (한글 뜻)" (e.g. "large (큰)"). Omit the field entirely (do not include the key) when no natural, simple synonym or antonym exists for that word at this level — do not force an unnatural pair.
 - Provide 3 multiple-choice reading comprehension questions in English about the passage, each with exactly 4 choices and a zero-based answerIndex.
 - Provide a short title for the passage.
 
@@ -40,7 +41,7 @@ Respond with ONLY valid JSON matching this shape, no markdown fences:
   "title": string,
   "sentences": string[],
   "translations": string[],
-  "vocabulary": [{ "term": string, "meaning": string, "example": string }],
+  "vocabulary": [{ "term": string, "meaning": string, "example": string, "synonym"?: string, "antonym"?: string }],
   "questions": [{ "question": string, "choices": string[4], "answerIndex": number }]
 }`
 }

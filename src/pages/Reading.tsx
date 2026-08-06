@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import FocusLayout from '../components/FocusLayout'
 import { Badge, Button, Card } from '../components/ui'
 import SpeedControl from '../components/SpeedControl'
+import TranslationToggle from '../components/TranslationToggle'
 import { useLessonFlow } from '../lib/lessonFlow'
 import { useAppStore } from '../lib/store'
 import { scoreComprehension } from '../lib/scoring'
@@ -38,7 +39,13 @@ export default function Reading() {
   const ttsRate = activeProfile?.ttsRate ?? settings.ttsRate
   const [submitted, setSubmitted] = useState(false)
 
+  // 해석 보기 토글. 입문 레벨은 아이 혼자 뜻을 파악하기 어려우니 기본으로 켜두고,
+  // 그 외 레벨은 스스로 먼저 읽어보도록 기본은 꺼둔다.
   const [showTranslations, setShowTranslations] = useState(false)
+  useEffect(() => {
+    if (!passage) return
+    setShowTranslations(passage.level === 'intro')
+  }, [passage])
 
   const terms = useMemo(() => passage?.vocabulary.map((v) => v.term) ?? [], [passage])
   const sentenceHtmls = useMemo(
@@ -121,17 +128,7 @@ export default function Reading() {
         <Card className="flex flex-col gap-3">
           <div className="flex items-start justify-between gap-2">
             <h2 className="text-lg font-bold">{passage.title}</h2>
-            <button
-              type="button"
-              onClick={() => setShowTranslations((s) => !s)}
-              className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
-                showTranslations
-                  ? 'border-indigo-500 bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300'
-                  : 'border-slate-200 text-slate-500 dark:border-slate-700 dark:text-slate-400'
-              }`}
-            >
-              {showTranslations ? '🇰🇷 해석 숨기기' : '🇰🇷 해석 보기'}
-            </button>
+            <TranslationToggle show={showTranslations} onToggle={() => setShowTranslations((s) => !s)} />
           </div>
 
           <div className="flex flex-col gap-3">

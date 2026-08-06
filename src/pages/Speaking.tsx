@@ -4,6 +4,7 @@ import FocusLayout from '../components/FocusLayout'
 import { Badge, Button, Card } from '../components/ui'
 import { RecordingIndicator, useElapsedSeconds } from '../components/RecordingIndicator'
 import SpeedControl from '../components/SpeedControl'
+import TranslationToggle from '../components/TranslationToggle'
 import { useLessonFlow } from '../lib/lessonFlow'
 import { useAppStore } from '../lib/store'
 import {
@@ -98,6 +99,14 @@ export default function Speaking() {
       player.stop()
       wholePlayerRef.current = null
     }
+  }, [passage])
+
+  // 해석 보기 토글. 입문 레벨은 아이 혼자 뜻을 파악하기 어려우니 기본으로 켜두고,
+  // 그 외 레벨은 스스로 먼저 읽어보도록 기본은 꺼둔다.
+  const [showTranslations, setShowTranslations] = useState(false)
+  useEffect(() => {
+    if (!passage) return
+    setShowTranslations(passage.level === 'intro')
   }, [passage])
 
   if (!passage) {
@@ -250,7 +259,10 @@ export default function Speaking() {
     return (
       <FocusLayout title="스피킹 연습" step={3}>
         <div className="flex flex-col gap-4 p-4">
-          <Badge tone="indigo">마지막 단계 · 전체 지문 한번에 읽기</Badge>
+          <div className="flex items-center justify-between gap-2">
+            <Badge tone="indigo">마지막 단계 · 전체 지문 한번에 읽기</Badge>
+            <TranslationToggle show={showTranslations} onToggle={() => setShowTranslations((s) => !s)} />
+          </div>
 
           {(!ttsOk || !sttOk) && (
             <p className="rounded-xl bg-amber-50 p-3 text-xs text-amber-700 dark:bg-amber-950 dark:text-amber-300">
@@ -258,18 +270,23 @@ export default function Speaking() {
             </p>
           )}
 
-          <Card className="flex flex-col gap-2">
+          <Card className="flex flex-col gap-1">
             {passage.sentences.map((s, i) => (
-              <p
+              <div
                 key={i}
-                className={`-mx-2 rounded-lg px-2 py-1 text-lg leading-loose transition-colors ${
+                className={`-mx-2 rounded-lg px-2 py-1 transition-colors ${
                   wholePlaybackState !== 'idle' && wholePlayingIndex === i
-                    ? 'bg-indigo-50 text-slate-900 dark:bg-indigo-950 dark:text-white'
-                    : 'text-slate-700 dark:text-slate-200'
+                    ? 'bg-indigo-50 dark:bg-indigo-950'
+                    : ''
                 }`}
               >
-                {s}
-              </p>
+                <p className="text-lg leading-loose text-slate-700 dark:text-slate-200">{s}</p>
+                {showTranslations && passage.translations[i] && (
+                  <p className="pb-1 text-sm leading-relaxed text-slate-400 dark:text-slate-500">
+                    {passage.translations[i]}
+                  </p>
+                )}
+              </div>
             ))}
           </Card>
 
@@ -372,9 +389,12 @@ export default function Speaking() {
     <FocusLayout title="스피킹 연습" step={3}>
       <div className="flex flex-col gap-4 p-4">
         <div className="flex flex-col items-center gap-1.5">
-          <p className="text-xs text-slate-400">
-            문장 {index + 1} / {passage.sentences.length}
-          </p>
+          <div className="flex w-full items-center justify-between gap-2">
+            <p className="text-xs text-slate-400">
+              문장 {index + 1} / {passage.sentences.length}
+            </p>
+            <TranslationToggle show={showTranslations} onToggle={() => setShowTranslations((s) => !s)} />
+          </div>
           <div className="flex w-full gap-1">
             {passage.sentences.map((_, i) => (
               <div
@@ -392,8 +412,13 @@ export default function Speaking() {
           </p>
         )}
 
-        <Card>
+        <Card className="flex flex-col gap-2">
           <p className="text-xl font-semibold leading-relaxed">{sentence}</p>
+          {showTranslations && passage.translations[index] && (
+            <p className="text-sm leading-relaxed text-slate-400 dark:text-slate-500">
+              {passage.translations[index]}
+            </p>
+          )}
         </Card>
 
         <div className="grid grid-cols-2 gap-3">
