@@ -33,6 +33,14 @@ export default function Dashboard() {
     return seen.size
   }, [sessions])
 
+  const totalDaysCount = useMemo(() => {
+    const seen = new Set<string>()
+    sessions.forEach((s) => {
+      if (!s.isReview) seen.add(s.date)
+    })
+    return seen.size
+  }, [sessions])
+
   const due = useMemo(() => dueVocab(vocabulary, today), [vocabulary, today])
 
   if (!ready) {
@@ -62,7 +70,7 @@ export default function Dashboard() {
             {activeProfile.emoji} {activeProfile.name}의 연속 학습
           </p>
           <p className="text-3xl font-extrabold">🔥 {streak.current}일</p>
-          <p className="mt-1 text-xs opacity-80">최고 기록 {streak.longest}일</p>
+          <p className="mt-1 text-xs opacity-80">최고 기록 {streak.longest}일 · 총 {totalDaysCount}일 학습</p>
         </div>
         <div className="text-right text-xs opacity-90">
           <p>이번 주 {weekCount}/7일 학습</p>

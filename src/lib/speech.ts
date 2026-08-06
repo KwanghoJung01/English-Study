@@ -58,6 +58,86 @@ export function stopSpeaking(): void {
   if (isTtsSupported()) window.speechSynthesis.cancel()
 }
 
+export type PlaybackState = 'idle' | 'playing' | 'paused'
+
+export interface SentencePlayerHandle {
+  /** 일시정지 상태였다면 멈췄던 문장부터, 정지 상태였다면 처음부터 이어서 읽는다. */
+  play: () => void
+  /** 지금 읽던 문장 위치를 기억한 채로 멈춘다. play()를 다시 부르면 그 문장부터 이어듣는다. */
+  pause: () => void
+  /** 완전히 멈추고 위치를 처음으로 되돌린다. 다음 play()는 첫 문장부터 시작한다. */
+  stop: () => void
+}
+
+/**
+ * 지문을 문장 단위로 순서대로 읽어주는 플레이어. 브라우저 내장 speechSynthesis의
+ * pause()/resume()은 Android Chrome에서 신뢰할 수 없게 동작하는 경우가 많아(멈춘 뒤
+ * 다시 재생되지 않거나 끊기는 문제), 대신 문장 단위로 직접 큐를 제어한다: 일시정지는
+ * 현재 문장 인덱스를 기억해두고 speechSynthesis만 취소하며, 정지는 인덱스를 0으로
+ * 되돌린다.
+ */
+export function createSentencePlayer(
+  sentences: string[],
+  getRate: () => number,
+  callbacks: {
+    onStateChange?: (state: PlaybackState) => void
+    onSentenceChange?: (index: number) => void
+  } = {},
+): SentencePlayerHandle {
+  let index = 0
+  let state: PlaybackState = 'idle'
+
+  function setState(next: PlaybackState) {
+    if (state === next) return
+    state = next
+    callbacks.onStateChange?.(next)
+  }
+
+  function speakFrom(i: number) {
+    if (i >= sentences.length) {
+      index = 0
+      setState('idle')
+      return
+    }
+    index = i
+    callbacks.onSentenceChange?.(i)
+    const utterance = new SpeechSynthesisUtterance(sentences[i])
+    utterance.lang = 'en-US'
+    utterance.rate = getRate()
+    const voice = pickEnglishVoice()
+    if (voice) utterance.voice = voice
+    utterance.onend = () => {
+      // 일시정지/정지로 인해 취소된 경우에는 다음 문장으로 넘어가지 않는다.
+      if (state !== 'playing') return
+      speakFrom(i + 1)
+    }
+    utterance.onerror = () => {
+      if (state !== 'playing') return
+      speakFrom(i + 1)
+    }
+    window.speechSynthesis.speak(utterance)
+  }
+
+  return {
+    play: () => {
+      if (!isTtsSupported() || state === 'playing') return
+      setState('playing')
+      window.speechSynthesis.cancel()
+      speakFrom(index)
+    },
+    pause: () => {
+      if (state !== 'playing') return
+      setState('paused')
+      window.speechSynthesis.cancel()
+    },
+    stop: () => {
+      setState('idle')
+      window.speechSynthesis.cancel()
+      index = 0
+    },
+  }
+}
+
 interface SpeechRecognitionResultLike {
   transcript: string
 }

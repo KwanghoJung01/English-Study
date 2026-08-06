@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import FocusLayout from '../components/FocusLayout'
 import { Badge, Button, Card } from '../components/ui'
@@ -7,12 +7,15 @@ import SpeedControl from '../components/SpeedControl'
 import { useLessonFlow } from '../lib/lessonFlow'
 import { useAppStore } from '../lib/store'
 import {
+  createSentencePlayer,
   isSttSupported,
   isTtsSupported,
   recordAndRecognize,
   speak,
   startContinuousRecognition,
   type ContinuousRecording,
+  type PlaybackState,
+  type SentencePlayerHandle,
 } from '../lib/speech'
 import { alignWords, computeAccuracy, computeWpm, countWords, paceFeedback, splitTokensBySentence } from '../lib/diff'
 import type { WordDiffToken } from '../types'
@@ -67,11 +70,35 @@ export default function Speaking() {
   const [wholeSentenceTokens, setWholeSentenceTokens] = useState<WordDiffToken[][]>([])
   const wholeRecordingRef = useRef<ContinuousRecording | null>(null)
 
+  // 전체 지문 듣기 재생/일시정지/정지 상태
+  const [wholePlaybackState, setWholePlaybackState] = useState<PlaybackState>('idle')
+  const [wholePlayingIndex, setWholePlayingIndex] = useState(0)
+  const wholePlayerRef = useRef<SentencePlayerHandle | null>(null)
+  const ttsRateRef = useRef(ttsRate)
+  useEffect(() => {
+    ttsRateRef.current = ttsRate
+  }, [ttsRate])
+
   const sentenceElapsed = useElapsedSeconds(phase === 'recording')
   const wholeElapsed = useElapsedSeconds(wholePhase === 'recording')
 
   const ttsOk = useMemo(() => isTtsSupported(), [])
   const sttOk = useMemo(() => isSttSupported(), [])
+
+  useEffect(() => {
+    if (!passage) return
+    const player = createSentencePlayer(passage.sentences, () => ttsRateRef.current, {
+      onStateChange: setWholePlaybackState,
+      onSentenceChange: setWholePlayingIndex,
+    })
+    wholePlayerRef.current = player
+    setWholePlaybackState('idle')
+    setWholePlayingIndex(0)
+    return () => {
+      player.stop()
+      wholePlayerRef.current = null
+    }
+  }, [passage])
 
   if (!passage) {
     return (
@@ -147,16 +174,15 @@ export default function Speaking() {
 
   const fullText = passage.sentences.join(' ')
 
-  async function handleWholeListen() {
-    setWholePhase('listening-tts')
-    setWholeError(null)
-    try {
-      await speak(fullText, ttsRate)
-    } catch (err) {
-      setWholeError(err instanceof Error ? err.message : String(err))
-    } finally {
-      setWholePhase('idle')
-    }
+  function handleWholePlayPause() {
+    const player = wholePlayerRef.current
+    if (!player) return
+    if (wholePlaybackState === 'playing') player.pause()
+    else player.play()
+  }
+
+  function handleWholeStop() {
+    wholePlayerRef.current?.stop()
   }
 
   function handleWholeRecordStart() {
@@ -232,20 +258,45 @@ export default function Speaking() {
             </p>
           )}
 
-          <Card>
-            <p className="text-lg leading-loose text-slate-700 dark:text-slate-200">{fullText}</p>
+          <Card className="flex flex-col gap-2">
+            {passage.sentences.map((s, i) => (
+              <p
+                key={i}
+                className={`-mx-2 rounded-lg px-2 py-1 text-lg leading-loose transition-colors ${
+                  wholePlaybackState !== 'idle' && wholePlayingIndex === i
+                    ? 'bg-indigo-50 text-slate-900 dark:bg-indigo-950 dark:text-white'
+                    : 'text-slate-700 dark:text-slate-200'
+                }`}
+              >
+                {s}
+              </p>
+            ))}
           </Card>
 
           <div className="grid grid-cols-2 gap-3">
-            <Button variant="secondary" onClick={handleWholeListen} disabled={wholePhase !== 'idle' || !ttsOk}>
-              🔊 전체 듣기
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="secondary"
+                className="flex-1"
+                onClick={handleWholePlayPause}
+                disabled={wholePhase === 'recording' || !ttsOk}
+              >
+                {wholePlaybackState === 'playing'
+                  ? '⏸ 일시정지'
+                  : wholePlaybackState === 'paused'
+                    ? '▶ 이어듣기'
+                    : '🔊 전체 듣기'}
+              </Button>
+              <Button variant="ghost" onClick={handleWholeStop} disabled={wholePlaybackState === 'idle'}>
+                ⏹
+              </Button>
+            </div>
             {wholePhase === 'recording' ? (
               <Button variant="danger" onClick={handleWholeRecordStop}>
                 🛑 다 읽었어요
               </Button>
             ) : (
-              <Button onClick={handleWholeRecordStart} disabled={wholePhase === 'listening-tts' || !sttOk}>
+              <Button onClick={handleWholeRecordStart} disabled={wholePlaybackState !== 'idle' || !sttOk}>
                 🎙 전체 읽기 시작
               </Button>
             )}

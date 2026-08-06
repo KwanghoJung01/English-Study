@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import FocusLayout from '../components/FocusLayout'
 import { Badge, Button, Card } from '../components/ui'
@@ -6,7 +6,7 @@ import SpeedControl from '../components/SpeedControl'
 import { useLessonFlow } from '../lib/lessonFlow'
 import { useAppStore } from '../lib/store'
 import { scoreComprehension } from '../lib/scoring'
-import { isTtsSupported, speak, stopSpeaking } from '../lib/speech'
+import { createSentencePlayer, isTtsSupported, type PlaybackState, type SentencePlayerHandle } from '../lib/speech'
 
 function escapeHtml(text: string): string {
   return text
@@ -37,7 +37,6 @@ export default function Reading() {
   const { settings, activeProfile, setTtsRate } = useAppStore()
   const ttsRate = activeProfile?.ttsRate ?? settings.ttsRate
   const [submitted, setSubmitted] = useState(false)
-  const [listening, setListening] = useState(false)
 
   const [showTranslations, setShowTranslations] = useState(false)
 
@@ -47,18 +46,39 @@ export default function Reading() {
     [passage, terms],
   )
 
+  const ttsRateRef = useRef(ttsRate)
   useEffect(() => {
-    return () => stopSpeaking()
-  }, [])
+    ttsRateRef.current = ttsRate
+  }, [ttsRate])
 
-  async function handleListenPassage() {
+  const playerRef = useRef<SentencePlayerHandle | null>(null)
+  const [playbackState, setPlaybackState] = useState<PlaybackState>('idle')
+  const [playingIndex, setPlayingIndex] = useState(0)
+
+  useEffect(() => {
     if (!passage) return
-    setListening(true)
-    try {
-      await speak(passage.sentences.join(' '), ttsRate)
-    } finally {
-      setListening(false)
+    const player = createSentencePlayer(passage.sentences, () => ttsRateRef.current, {
+      onStateChange: setPlaybackState,
+      onSentenceChange: setPlayingIndex,
+    })
+    playerRef.current = player
+    setPlaybackState('idle')
+    setPlayingIndex(0)
+    return () => {
+      player.stop()
+      playerRef.current = null
     }
+  }, [passage])
+
+  function handlePlayPause() {
+    const player = playerRef.current
+    if (!player) return
+    if (playbackState === 'playing') player.pause()
+    else player.play()
+  }
+
+  function handleStop() {
+    playerRef.current?.stop()
   }
 
   if (!passage) {
@@ -115,24 +135,41 @@ export default function Reading() {
           </div>
 
           <div className="flex flex-col gap-3">
-            {passage.sentences.map((_, i) => (
-              <div key={i} className="flex flex-col gap-1">
-                <p
-                  className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
-                  dangerouslySetInnerHTML={{ __html: sentenceHtmls[i] }}
-                />
-                {showTranslations && passage.translations[i] && (
-                  <p className="text-sm leading-relaxed text-slate-400 dark:text-slate-500">
-                    {passage.translations[i]}
-                  </p>
-                )}
-              </div>
-            ))}
+            {passage.sentences.map((_, i) => {
+              const isActive = playbackState !== 'idle' && playingIndex === i
+              return (
+                <div
+                  key={i}
+                  className={`-mx-2 flex flex-col gap-1 rounded-lg px-2 py-1 transition-colors ${
+                    isActive ? 'bg-indigo-50 dark:bg-indigo-950' : ''
+                  }`}
+                >
+                  <p
+                    className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+                    dangerouslySetInnerHTML={{ __html: sentenceHtmls[i] }}
+                  />
+                  {showTranslations && passage.translations[i] && (
+                    <p className="text-sm leading-relaxed text-slate-400 dark:text-slate-500">
+                      {passage.translations[i]}
+                    </p>
+                  )}
+                </div>
+              )
+            })}
           </div>
 
-          <Button variant="secondary" onClick={handleListenPassage} disabled={listening || !isTtsSupported()}>
-            {listening ? '🔊 읽어주는 중…' : '🔊 원어민이 전체 읽어주기'}
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="secondary" className="flex-1" onClick={handlePlayPause} disabled={!isTtsSupported()}>
+              {playbackState === 'playing'
+                ? '⏸ 일시정지'
+                : playbackState === 'paused'
+                  ? '▶ 이어듣기'
+                  : '🔊 원어민이 전체 읽어주기'}
+            </Button>
+            <Button variant="ghost" onClick={handleStop} disabled={playbackState === 'idle'}>
+              ⏹ 정지
+            </Button>
+          </div>
           <SpeedControl rate={ttsRate} onChange={setTtsRate} />
         </Card>
 
