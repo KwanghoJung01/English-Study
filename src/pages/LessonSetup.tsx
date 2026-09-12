@@ -40,6 +40,15 @@ export default function LessonSetup() {
     [activeProfileState],
   )
 
+  const recentGeminiTitles = useMemo(
+    () =>
+      (activeProfileState?.sessions ?? [])
+        .filter((s) => s.source === 'gemini' && s.topic === topic && s.level === level)
+        .slice(0, 8)
+        .map((s) => s.passageTitle),
+    [activeProfileState, topic, level],
+  )
+
   if (!activeProfile) {
     return (
       <FocusLayout title="학습 설정">
@@ -56,7 +65,7 @@ export default function LessonSetup() {
     setError(null)
     try {
       const topicLabel = useCustom ? customTopic.trim() || '자유 주제' : BANK_TOPICS.find((t) => t.id === topic)?.label ?? topic
-      const result = await generatePassage(settings, level, topic, topicLabel, recentBankKeys)
+      const result = await generatePassage(settings, level, topic, topicLabel, recentBankKeys, recentGeminiTitles)
       startLesson(result.passage, isReview, result.note)
       navigate('/lesson/reading')
     } catch (err) {

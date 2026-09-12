@@ -1,8 +1,33 @@
 import type { Level, Passage, TopicId } from '../types'
-import { LEVELS } from '../types'
+import { DEFAULT_GEMINI_MODEL, LEVELS } from '../types'
 
-const MODEL = 'gemini-2.5-flash'
-const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`
+function endpointFor(model: string): string {
+  const id = model.trim() || DEFAULT_GEMINI_MODEL
+  return `https://generativelanguage.googleapis.com/v1beta/models/${id}:generateContent`
+}
+
+const VARIETY_NAMES = ['Mia', 'Leo', 'Emma', 'Noah', 'Ava', 'Ben', 'Sora', 'Jun', 'Zoe', 'Max', 'Lily', 'Sam']
+const VARIETY_DETAILS = [
+  'a red backpack',
+  'a rainy afternoon',
+  'a new neighbor',
+  'a surprise gift',
+  'a lost key',
+  'a weekend trip',
+  'a school festival',
+  'a broken bicycle',
+  'a birthday party',
+  'a science project',
+  'a missing pet',
+  'a late bus',
+  'a new recipe',
+  'an old photo',
+  'a video call with family',
+]
+
+function pickRandom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)]
+}
 
 interface GeminiPassagePayload {
   title: string
@@ -21,11 +46,18 @@ Extra rules for this level:
 - Sentences should read like a picture book, one simple idea per sentence.
 - Comprehension question choices must also be short and simple (1-3 words each).`
 
-function buildPrompt(level: Level, topicLabel: string): string {
+function buildPrompt(level: Level, topicLabel: string, recentTitles: string[]): string {
   const levelInfo = LEVELS.find((l) => l.id === level)
+  const varietyName = pickRandom(VARIETY_NAMES)
+  const varietyDetail = pickRandom(VARIETY_DETAILS)
+  const avoidRepeats =
+    recentTitles.length > 0
+      ? `\nThis learner has already seen these previous passages on this same topic — do NOT reuse their titles, opening lines, or overall scenario. Write a clearly different, fresh scenario this time:\n${recentTitles.map((t) => `- "${t}"`).join('\n')}`
+      : ''
   return `You are an English learning content generator for a Korean learner.
 Create ONE short English reading passage for topic "${topicLabel}" at level "${levelInfo?.label} (${levelInfo?.hint})".
 ${level === 'intro' ? INTRO_LEVEL_GUIDANCE : ''}
+To keep things fresh and varied, build this specific passage around a character named "${varietyName}" and naturally incorporate this detail somewhere in the story: ${varietyDetail}. Vary the specific names, numbers, times, and small details every time you are asked — never fall back to a generic default scenario for the topic.${avoidRepeats}
 
 Requirements:
 - ${level === 'intro' ? '5 to 7' : '6 to 9'} natural, connected English sentences (as an array, one sentence per element, no numbering).
@@ -51,14 +83,17 @@ export async function generateWithGemini(
   level: Level,
   topic: TopicId,
   topicLabel: string,
+  recentTitles: string[] = [],
+  model: string = DEFAULT_GEMINI_MODEL,
 ): Promise<Passage> {
-  const res = await fetch(`${ENDPOINT}?key=${encodeURIComponent(apiKey)}`, {
+  const res = await fetch(`${endpointFor(model)}?key=${encodeURIComponent(apiKey)}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      contents: [{ parts: [{ text: buildPrompt(level, topicLabel) }] }],
+      contents: [{ parts: [{ text: buildPrompt(level, topicLabel, recentTitles) }] }],
       generationConfig: {
-        temperature: 0.9,
+        temperature: 1.05,
+        topP: 0.97,
         responseMimeType: 'application/json',
       },
     }),

@@ -3,6 +3,7 @@ import { useAppStore, type NewProfileInput } from '../lib/store'
 import { Button, Card } from '../components/ui'
 import SpeedControl from '../components/SpeedControl'
 import {
+  GEMINI_MODEL_PRESETS,
   LEVELS,
   PROFILE_COLORS,
   PROFILE_EMOJIS,
@@ -57,6 +58,26 @@ export default function Settings() {
             {showKey ? '숨기기' : '보기'}
           </Button>
         </div>
+
+        <label className="mt-3 block text-xs font-semibold text-slate-500 dark:text-slate-400">Gemini 모델</label>
+        <input
+          list="gemini-model-presets"
+          value={settings.geminiModel}
+          onChange={(e) => updateSettings({ geminiModel: e.target.value })}
+          placeholder="gemini-2.5-flash"
+          className="w-full rounded-xl border border-slate-200 bg-transparent p-2.5 text-sm dark:border-slate-800"
+        />
+        <datalist id="gemini-model-presets">
+          {GEMINI_MODEL_PRESETS.map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.label}
+            </option>
+          ))}
+        </datalist>
+        <p className="mt-1 text-xs text-slate-400">
+          목록에서 골라도 되고, Google AI Studio에 새 무료 모델(예: 더 최신 Flash 모델)이 나오면 정확한 모델 ID를
+          직접 입력해도 돼요. 비워두면 기본값({GEMINI_MODEL_PRESETS[0].id})을 사용합니다.
+        </p>
       </Section>
 
       <Section title="기본 학습 설정">

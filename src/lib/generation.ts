@@ -13,6 +13,7 @@ export async function generatePassage(
   topic: TopicId,
   topicLabel: string,
   recentBankKeys: string[],
+  recentGeminiTitles: string[] = [],
 ): Promise<GenerationResult> {
   const wantsGemini = settings.generationMode !== 'bank' && settings.geminiApiKey.trim().length > 0
   const isCustomTopic = topic === 'custom'
@@ -26,7 +27,14 @@ export async function generatePassage(
   }
 
   try {
-    const passage = await generateWithGemini(settings.geminiApiKey, level, topic, topicLabel)
+    const passage = await generateWithGemini(
+      settings.geminiApiKey,
+      level,
+      topic,
+      topicLabel,
+      recentGeminiTitles,
+      settings.geminiModel,
+    )
     return { passage, note: null }
   } catch (err) {
     if (isCustomTopic || !bankHasTopic(topic)) {

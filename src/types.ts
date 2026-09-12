@@ -127,6 +127,8 @@ export type GenerationMode = 'auto' | 'gemini' | 'bank'
 
 export interface Settings {
   geminiApiKey: string
+  /** Gemini 모델 ID (예: gemini-2.5-flash). 비어있으면 DEFAULT_GEMINI_MODEL을 사용. */
+  geminiModel: string
   githubToken: string
   githubOwner: string
   githubRepo: string
@@ -190,8 +192,17 @@ export const TTS_SPEED_PRESETS: { rate: number; label: string; emoji: string }[]
   { rate: 1.0, label: '빠르게', emoji: '🐇' },
 ]
 
+/** 설정 화면에서 바로 고를 수 있는 알려진 모델 프리셋. 목록에 없는 모델도 직접 입력할 수 있다. */
+export const GEMINI_MODEL_PRESETS: { id: string; label: string }[] = [
+  { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash (기본, 무료 티어)' },
+  { id: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash-Lite (더 가볍고 빠름)' },
+  { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
+]
+export const DEFAULT_GEMINI_MODEL = GEMINI_MODEL_PRESETS[0].id
+
 export const DEFAULT_SETTINGS: Settings = {
   geminiApiKey: '',
+  geminiModel: DEFAULT_GEMINI_MODEL,
   githubToken: '',
   githubOwner: '',
   githubRepo: '',
