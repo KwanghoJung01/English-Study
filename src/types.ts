@@ -197,6 +197,7 @@ export const GEMINI_MODEL_PRESETS: { id: string; label: string }[] = [
   { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash (기본, 무료 티어)' },
   { id: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash-Lite (더 가볍고 빠름)' },
   { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
+  { id: 'gemini-3.5-flash-lite', label: 'Gemini 3.5 Flash-Lite (동작 안 하면 직접 입력으로 정확한 ID 확인)' },
 ]
 export const DEFAULT_GEMINI_MODEL = GEMINI_MODEL_PRESETS[0].id
 
