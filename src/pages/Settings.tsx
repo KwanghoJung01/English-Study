@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { useAppStore, type NewProfileInput } from '../lib/store'
 import { Button, Card } from '../components/ui'
 import SpeedControl from '../components/SpeedControl'
+import { listGeminiModels, type GeminiModelInfo } from '../lib/gemini'
 import {
   GEMINI_MODEL_PRESETS,
   LEVELS,
@@ -23,6 +24,26 @@ export default function Settings() {
   const ttsRate = activeProfile?.ttsRate ?? settings.ttsRate
   const [showToken, setShowToken] = useState(false)
   const [showKey, setShowKey] = useState(false)
+  const [availableModels, setAvailableModels] = useState<GeminiModelInfo[]>([])
+  const [loadingModels, setLoadingModels] = useState(false)
+  const [modelsError, setModelsError] = useState<string | null>(null)
+
+  async function handleLoadModels() {
+    setLoadingModels(true)
+    setModelsError(null)
+    try {
+      const models = await listGeminiModels(settings.geminiApiKey)
+      setAvailableModels(models)
+      if (models.length === 0) {
+        setModelsError('사용 가능한 모델을 찾지 못했어요. API 키를 다시 확인해주세요.')
+      }
+    } catch (err) {
+      setAvailableModels([])
+      setModelsError(err instanceof Error ? err.message : String(err))
+    } finally {
+      setLoadingModels(false)
+    }
+  }
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -68,15 +89,48 @@ export default function Settings() {
           className="w-full rounded-xl border border-slate-200 bg-transparent p-2.5 text-sm dark:border-slate-800"
         />
         <datalist id="gemini-model-presets">
-          {GEMINI_MODEL_PRESETS.map((m) => (
+          {[...availableModels.map((m) => ({ id: m.id, label: m.displayName })), ...GEMINI_MODEL_PRESETS].map((m) => (
             <option key={m.id} value={m.id}>
               {m.label}
             </option>
           ))}
         </datalist>
+
+        <Button
+          variant="secondary"
+          className="mt-2 w-full"
+          disabled={loadingModels || !settings.geminiApiKey.trim()}
+          onClick={handleLoadModels}
+        >
+          {loadingModels ? '불러오는 중…' : '🔄 내 API 키로 쓸 수 있는 모델 불러오기'}
+        </Button>
+
+        {modelsError && <p className="mt-2 text-xs text-rose-500">{modelsError}</p>}
+
+        {availableModels.length > 0 && (
+          <div className="mt-2 max-h-64 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-800">
+            {availableModels.map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => updateSettings({ geminiModel: m.id })}
+                className={`flex w-full flex-col items-start gap-0.5 border-b border-slate-100 p-2.5 text-left last:border-b-0 dark:border-slate-800 ${
+                  settings.geminiModel === m.id ? 'bg-indigo-50 dark:bg-indigo-950' : ''
+                }`}
+              >
+                <span className="text-sm font-medium">
+                  {m.displayName}
+                  {settings.geminiModel === m.id && ' ✓'}
+                </span>
+                <span className="text-[11px] text-slate-400">{m.id}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
         <p className="mt-1 text-xs text-slate-400">
-          목록에서 골라도 되고, Google AI Studio에 새 무료 모델(예: 더 최신 Flash 모델)이 나오면 정확한 모델 ID를
-          직접 입력해도 돼요. 비워두면 기본값({GEMINI_MODEL_PRESETS[0].id})을 사용합니다.
+          위 버튼을 누르면 지금 등록된 API 키로 실제 사용 가능한 모델을 Google에서 직접 불러와 보여줍니다. 새 모델이
+          나와도 앱 업데이트 없이 바로 목록에 나타나요. 비워두면 기본값({GEMINI_MODEL_PRESETS[0].id})을 사용합니다.
         </p>
       </Section>
 

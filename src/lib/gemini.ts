@@ -1,9 +1,44 @@
 import type { Level, Passage, TopicId } from '../types'
 import { DEFAULT_GEMINI_MODEL, LEVELS } from '../types'
 
+const API_BASE = 'https://generativelanguage.googleapis.com/v1beta'
+
 function endpointFor(model: string): string {
   const id = model.trim() || DEFAULT_GEMINI_MODEL
-  return `https://generativelanguage.googleapis.com/v1beta/models/${id}:generateContent`
+  return `${API_BASE}/models/${id}:generateContent`
+}
+
+export interface GeminiModelInfo {
+  id: string
+  displayName: string
+}
+
+/**
+ * 이 API 키로 실제 사용할 수 있는 모델 목록을 Google에서 직접 조회한다.
+ * 모델 ID를 추측하지 않아도 되고, 새 모델이 나와도 앱 수정 없이 바로 보인다.
+ */
+export async function listGeminiModels(apiKey: string): Promise<GeminiModelInfo[]> {
+  const res = await fetch(`${API_BASE}/models?pageSize=200&key=${encodeURIComponent(apiKey)}`)
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '')
+    throw new Error(`모델 목록을 불러오지 못했습니다 (${res.status}): ${errText.slice(0, 200)}`)
+  }
+
+  const data = await res.json()
+  const models: unknown[] = Array.isArray(data?.models) ? data.models : []
+
+  return models
+    .map((raw) => {
+      const m = raw as { name?: string; displayName?: string; supportedGenerationMethods?: string[] }
+      return {
+        id: String(m.name ?? '').replace(/^models\//, ''),
+        displayName: String(m.displayName ?? m.name ?? ''),
+        methods: m.supportedGenerationMethods ?? [],
+      }
+    })
+    // 지문 생성에 쓰는 generateContent를 지원하는 모델만 남긴다(임베딩 전용 모델 등 제외).
+    .filter((m) => m.id && m.methods.includes('generateContent'))
+    .map(({ id, displayName }) => ({ id, displayName }))
 }
 
 const VARIETY_NAMES = ['Mia', 'Leo', 'Emma', 'Noah', 'Ava', 'Ben', 'Sora', 'Jun', 'Zoe', 'Max', 'Lily', 'Sam']
