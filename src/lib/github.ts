@@ -28,8 +28,12 @@ export class GithubApiError extends Error {
   }
 }
 
+function repoApi(settings: Settings): string {
+  return `https://api.github.com/repos/${settings.githubOwner}/${settings.githubRepo}`
+}
+
 function apiBase(settings: Settings): string {
-  return `https://api.github.com/repos/${settings.githubOwner}/${settings.githubRepo}/contents/${PROGRESS_PATH}`
+  return `${repoApi(settings)}/contents/${PROGRESS_PATH}`
 }
 
 function authHeaders(settings: Settings): HeadersInit {
@@ -61,8 +65,31 @@ export async function fetchRemoteState(settings: Settings): Promise<RemoteStateR
     throw new GithubApiError(`GitHub에서 진행 기록을 불러오지 못했습니다 (${res.status}): ${text.slice(0, 200)}`, res.status)
   }
   const json = await res.json()
-  const content = base64ToUtf8(json.content as string)
-  return { state: migrateAppState(JSON.parse(content)), sha: json.sha as string }
+  const sha = json.sha as string
+
+  // Contents API는 1MB가 넘는 파일의 내용을 빈 문자열(encoding: "none")로 돌려준다.
+  // 그대로 JSON.parse하면 "Unexpected end of JSON input"이 나므로, 그 경우엔
+  // 최대 100MB까지 내용을 주는 Git Blob API로 다시 받아온다.
+  let base64 = typeof json.content === 'string' ? json.content : ''
+  if (!base64 && json.size > 0) {
+    base64 = await fetchBlobBase64(settings, sha)
+  }
+
+  const content = base64ToUtf8(base64)
+  if (!content.trim()) {
+    return { state: null, sha }
+  }
+  return { state: migrateAppState(JSON.parse(content)), sha }
+}
+
+async function fetchBlobBase64(settings: Settings, sha: string): Promise<string> {
+  const res = await fetch(`${repoApi(settings)}/git/blobs/${sha}`, { headers: authHeaders(settings) })
+  if (!res.ok) {
+    const text = await res.text().catch(() => '')
+    throw new GithubApiError(`GitHub에서 진행 기록을 불러오지 못했습니다 (${res.status}): ${text.slice(0, 200)}`, res.status)
+  }
+  const json = await res.json()
+  return typeof json.content === 'string' ? json.content : ''
 }
 
 export async function pushRemoteState(
@@ -72,7 +99,8 @@ export async function pushRemoteState(
 ): Promise<string> {
   const body = {
     message: `chore: update progress (${state.updatedAt})`,
-    content: utf8ToBase64(JSON.stringify(state, null, 2)),
+    // 들여쓰기 없이 저장하면 파일 크기가 약 60% 줄어든다.
+    content: utf8ToBase64(JSON.stringify(state)),
     branch: settings.githubBranch,
     sha: sha ?? undefined,
   }
