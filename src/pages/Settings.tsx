@@ -217,6 +217,8 @@ export default function Settings() {
         </div>
         {syncError && <p className="mt-2 text-xs text-rose-500">{syncError}</p>}
       </Section>
+
+      <p className="text-center text-[11px] text-slate-400">앱 버전 {__APP_VERSION__}</p>
     </div>
   )
 }

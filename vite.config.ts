@@ -2,13 +2,22 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// 설정 화면에 표시해 폰에서 어느 버전이 실행 중인지 확인할 수 있게 한다.
+const buildSha = (process.env.GITHUB_SHA ?? 'dev').slice(0, 7)
+const buildDate = new Date().toISOString().slice(0, 16).replace('T', ' ')
+
 // https://vite.dev/config/
 export default defineConfig({
   base: '/English-Study/',
+  define: {
+    __APP_VERSION__: JSON.stringify(`${buildSha} · ${buildDate} UTC`),
+  },
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      // main.tsx에서 직접 등록해 새 버전이 오면 즉시 새로고침한다.
+      injectRegister: false,
       includeAssets: ['favicon.svg', 'icons/icon.svg'],
       manifest: {
         name: '매일 영어 스피킹',

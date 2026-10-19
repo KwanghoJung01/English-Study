@@ -79,7 +79,14 @@ export async function fetchRemoteState(settings: Settings): Promise<RemoteStateR
   if (!content.trim()) {
     return { state: null, sha }
   }
-  return { state: migrateAppState(JSON.parse(content)), sha }
+  try {
+    return { state: migrateAppState(JSON.parse(content)), sha }
+  } catch (err) {
+    const reason = err instanceof Error ? err.message : String(err)
+    throw new Error(
+      `진행 기록 파일을 해석하지 못했습니다 (파일 ${json.size}바이트, 받은 내용 ${content.length}자): ${reason}`,
+    )
+  }
 }
 
 async function fetchBlobBase64(settings: Settings, sha: string): Promise<string> {
