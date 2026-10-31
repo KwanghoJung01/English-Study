@@ -67,6 +67,21 @@ export function isGithubConfigured(settings: Settings): boolean {
   return Boolean(settings.githubToken && settings.githubOwner && settings.githubRepo)
 }
 
+export interface TokenCheckResult {
+  ok: boolean
+  status: number
+  /** GitHub가 알려준 토큰 만료일(YYYY-MM-DD). 브라우저에서 읽을 수 없으면 null. */
+  expiry: string | null
+}
+
+/** 토큰이 지금 유효한지 확인하고, 가능하면 GitHub가 응답 헤더로 알려주는 만료일도 읽는다. */
+export async function checkGithubToken(settings: Settings): Promise<TokenCheckResult> {
+  const res = await fetch(repoApi(settings), { headers: authHeaders(settings) })
+  const raw = res.headers.get('github-authentication-token-expiration')
+  const match = raw?.match(/^\d{4}-\d{2}-\d{2}/)
+  return { ok: res.ok, status: res.status, expiry: match ? match[0] : null }
+}
+
 export interface RemoteStateResult {
   state: AppState | null
   sha: string | null

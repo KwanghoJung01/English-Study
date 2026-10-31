@@ -130,6 +130,8 @@ export interface Settings {
   /** Gemini 모델 ID (예: gemini-2.5-flash). 비어있으면 DEFAULT_GEMINI_MODEL을 사용. */
   geminiModel: string
   githubToken: string
+  /** 토큰 만료일(YYYY-MM-DD). GitHub에서 자동으로 확인했거나 사용자가 직접 입력한 값. */
+  githubTokenExpiry: string
   githubOwner: string
   githubRepo: string
   githubBranch: string
@@ -205,6 +207,7 @@ export const DEFAULT_SETTINGS: Settings = {
   geminiApiKey: '',
   geminiModel: DEFAULT_GEMINI_MODEL,
   githubToken: '',
+  githubTokenExpiry: '',
   githubOwner: '',
   githubRepo: '',
   githubBranch: 'main',

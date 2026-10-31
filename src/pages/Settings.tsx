@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { useAppStore, type NewProfileInput } from '../lib/store'
 import { Button, Card } from '../components/ui'
 import SpeedControl from '../components/SpeedControl'
+import GithubTokenStatus from '../components/GithubTokenStatus'
 import { listGeminiModels, type GeminiModelInfo } from '../lib/gemini'
 import {
   GEMINI_MODEL_PRESETS,
@@ -205,6 +206,7 @@ export default function Settings() {
               </Button>
             </div>
           </Field>
+          <GithubTokenStatus />
         </div>
 
         <div className="mt-3 flex items-center justify-between">
