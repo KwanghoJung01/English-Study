@@ -23,8 +23,6 @@ const MODE_LABEL: Record<GenerationMode, string> = {
 export default function Settings() {
   const { settings, updateSettings, activeProfile, setTtsRate, syncNow, syncStatus, syncError } = useAppStore()
   const ttsRate = activeProfile?.ttsRate ?? settings.ttsRate
-  const [showToken, setShowToken] = useState(false)
-  const [showKey, setShowKey] = useState(false)
   const [availableModels, setAvailableModels] = useState<GeminiModelInfo[]>([])
   const [loadingModels, setLoadingModels] = useState(false)
   const [modelsError, setModelsError] = useState<string | null>(null)
@@ -68,18 +66,11 @@ export default function Settings() {
         <label className="mt-3 block text-xs font-semibold text-slate-500 dark:text-slate-400">
           Gemini API 키 (무료, aistudio.google.com에서 발급)
         </label>
-        <div className="flex gap-2">
-          <input
-            type={showKey ? 'text' : 'password'}
-            value={settings.geminiApiKey}
-            onChange={(e) => updateSettings({ geminiApiKey: e.target.value })}
-            placeholder="AIza..."
-            className="flex-1 rounded-xl border border-slate-200 bg-transparent p-2.5 text-sm dark:border-slate-800"
-          />
-          <Button variant="secondary" onClick={() => setShowKey((s) => !s)}>
-            {showKey ? '숨기기' : '보기'}
-          </Button>
-        </div>
+        <SecretInput
+          value={settings.geminiApiKey}
+          onChange={(value) => updateSettings({ geminiApiKey: value })}
+          placeholder="AIza..."
+        />
 
         <label className="mt-3 block text-xs font-semibold text-slate-500 dark:text-slate-400">Gemini 모델</label>
         <input
@@ -193,18 +184,11 @@ export default function Settings() {
             />
           </Field>
           <Field label="Personal Access Token">
-            <div className="flex gap-2">
-              <input
-                type={showToken ? 'text' : 'password'}
-                value={settings.githubToken}
-                onChange={(e) => updateSettings({ githubToken: e.target.value })}
-                placeholder="github_pat_..."
-                className="flex-1 rounded-xl border border-slate-200 bg-transparent p-2.5 text-sm dark:border-slate-800"
-              />
-              <Button variant="secondary" onClick={() => setShowToken((s) => !s)}>
-                {showToken ? '숨기기' : '보기'}
-              </Button>
-            </div>
+            <SecretInput
+              value={settings.githubToken}
+              onChange={(value) => updateSettings({ githubToken: value })}
+              placeholder="github_pat_..."
+            />
           </Field>
           <GithubTokenStatus />
         </div>
@@ -221,6 +205,40 @@ export default function Settings() {
       </Section>
 
       <p className="text-center text-[11px] text-slate-400">앱 버전 {__APP_VERSION__}</p>
+    </div>
+  )
+}
+
+/**
+ * API 키·토큰 입력칸. 옆에서 보거나 복사해 가지 못하도록 내용을 보여주는 버튼 없이
+ * 항상 가려두고, 제대로 들어갔는지만 끝 4자리로 확인할 수 있게 한다.
+ */
+function SecretInput({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string
+  onChange: (value: string) => void
+  placeholder: string
+}) {
+  const trimmed = value.trim()
+  return (
+    <div>
+      <input
+        type="password"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        autoComplete="new-password"
+        autoCapitalize="off"
+        autoCorrect="off"
+        spellCheck={false}
+        className="w-full rounded-xl border border-slate-200 bg-transparent p-2.5 text-sm dark:border-slate-800"
+      />
+      <p className="mt-1 text-[11px] text-slate-400">
+        {trimmed ? `입력됨 · 끝 4자리 ${trimmed.slice(-4)}` : '아직 입력되지 않았어요.'}
+      </p>
     </div>
   )
 }
