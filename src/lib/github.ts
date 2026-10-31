@@ -28,6 +28,25 @@ export class GithubApiError extends Error {
   }
 }
 
+function hintFor(status: number): string {
+  if (status === 401) {
+    return 'GitHub 토큰이 만료됐거나 잘못됐어요. GitHub에서 토큰을 다시 발급(Regenerate)한 뒤 설정에 새 토큰을 붙여넣어 주세요.'
+  }
+  if (status === 403) {
+    return '토큰에 이 저장소의 Contents 읽기/쓰기 권한이 없거나, 잠시 요청 한도를 넘었어요. 토큰 권한을 확인하거나 잠시 후 다시 시도해주세요.'
+  }
+  if (status === 404) {
+    return '저장소를 찾을 수 없어요. 저장소 소유자·이름·브랜치가 맞는지, 토큰이 이 저장소에 접근할 수 있는지 확인해주세요.'
+  }
+  return ''
+}
+
+function githubError(action: string, status: number, text: string): GithubApiError {
+  const hint = hintFor(status)
+  const detail = `${action} (${status})`
+  return new GithubApiError(hint ? `${detail}: ${hint}` : `${detail}: ${text.slice(0, 200)}`, status)
+}
+
 function repoApi(settings: Settings): string {
   return `https://api.github.com/repos/${settings.githubOwner}/${settings.githubRepo}`
 }
@@ -62,7 +81,7 @@ export async function fetchRemoteState(settings: Settings): Promise<RemoteStateR
   }
   if (!res.ok) {
     const text = await res.text().catch(() => '')
-    throw new GithubApiError(`GitHub에서 진행 기록을 불러오지 못했습니다 (${res.status}): ${text.slice(0, 200)}`, res.status)
+    throw githubError('GitHub에서 진행 기록을 불러오지 못했습니다', res.status, text)
   }
   const json = await res.json()
   const sha = json.sha as string
@@ -93,7 +112,7 @@ async function fetchBlobBase64(settings: Settings, sha: string): Promise<string>
   const res = await fetch(`${repoApi(settings)}/git/blobs/${sha}`, { headers: authHeaders(settings) })
   if (!res.ok) {
     const text = await res.text().catch(() => '')
-    throw new GithubApiError(`GitHub에서 진행 기록을 불러오지 못했습니다 (${res.status}): ${text.slice(0, 200)}`, res.status)
+    throw githubError('GitHub에서 진행 기록을 불러오지 못했습니다', res.status, text)
   }
   const json = await res.json()
   return typeof json.content === 'string' ? json.content : ''
@@ -118,7 +137,7 @@ export async function pushRemoteState(
   })
   if (!res.ok) {
     const text = await res.text().catch(() => '')
-    throw new GithubApiError(`GitHub에 진행 기록을 저장하지 못했습니다 (${res.status}): ${text.slice(0, 200)}`, res.status)
+    throw githubError('GitHub에 진행 기록을 저장하지 못했습니다', res.status, text)
   }
   const json = await res.json()
   return json.content?.sha as string
