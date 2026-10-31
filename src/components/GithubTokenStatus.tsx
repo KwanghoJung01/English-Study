@@ -153,7 +153,14 @@ function TokenGuideModal({ repo, onClose }: { repo: string; onClose: () => void 
         >
           GitHub 토큰 화면 열기 ↗
         </a>
-        <p className="-mt-3 mb-4 break-all text-center text-[11px] text-slate-400">{TOKENS_URL}</p>
+        <a
+          href={TOKENS_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="-mt-3 mb-4 block break-all text-center text-xs text-indigo-500 underline"
+        >
+          github.com/settings/personal-access-tokens
+        </a>
 
         <ol className="flex list-decimal flex-col gap-2 pl-5">
           <li>

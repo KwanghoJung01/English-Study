@@ -31,7 +31,7 @@
 
 ### 3) (선택) GitHub 진행 기록 동기화 — 여러 폰에서 같은 기록을 보고 싶다면
 
-1. GitHub → 우측 상단 프로필 → **Settings → Developer settings → Personal access tokens → Fine-grained tokens**로 이동합니다.
+1. 폰 브라우저(Chrome)에서 **[github.com/settings/personal-access-tokens](https://github.com/settings/personal-access-tokens)** 주소로 바로 들어가 **Generate new token**을 누릅니다. (GitHub 메뉴 이름은 바뀔 수 있으니 이 주소를 쓰는 게 가장 확실해요. 앱 설정의 토큰 만료일 옆 **!** 버튼에도 같은 안내가 있어요.)
 2. **Repository access**를 이 저장소 하나로 제한하고, **Permissions → Contents: Read and write**만 부여합니다. (그 외 권한은 주지 않는 것을 권장합니다.)
 3. 발급된 토큰을 앱의 **설정 → GitHub 진행 기록 동기화**에 저장소 소유자/이름/브랜치와 함께 입력하고 "GitHub 자동 동기화 사용"을 켭니다.
 4. 이후 학습을 완료할 때마다 `progress/state.json`이 이 저장소에 자동 커밋됩니다. 다른 폰에서 같은 토큰(또는 각자 발급한 토큰)을 등록하면 최신 기록을 불러와 병합합니다.

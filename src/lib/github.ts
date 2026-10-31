@@ -30,7 +30,7 @@ export class GithubApiError extends Error {
 
 function hintFor(status: number): string {
   if (status === 401) {
-    return 'GitHub 토큰이 만료됐거나 잘못됐어요. GitHub에서 토큰을 다시 발급(Regenerate)한 뒤 설정에 새 토큰을 붙여넣어 주세요.'
+    return 'GitHub 토큰이 만료됐거나 잘못됐어요. github.com/settings/personal-access-tokens 에서 토큰을 다시 발급(Regenerate)한 뒤 설정에 새 토큰을 붙여넣어 주세요. 자세한 방법은 설정의 토큰 만료일 옆 ! 버튼을 누르세요.'
   }
   if (status === 403) {
     return '토큰에 이 저장소의 Contents 읽기/쓰기 권한이 없거나, 잠시 요청 한도를 넘었어요. 토큰 권한을 확인하거나 잠시 후 다시 시도해주세요.'
